@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, LayoutDashboard, Users, Crown, LogOut, ChevronDown, User as UserIcon } from 'lucide-react';
 import { Menu as HeadlessMenu } from '@headlessui/react';
 import toast from 'react-hot-toast';
 
 const menuItems = [
-  { icon: LayoutDashboard, name: 'Dashboard', path: '/' },
+  { icon: LayoutDashboard, name: 'Dashboard', path: '/dashboard' },
   { icon: Users, name: 'Users', path: '/users' },
   { icon: Crown, name: 'Plans', path: '/plans' },
 ];
@@ -24,7 +24,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex h-screen">
       {/* Sidebar */}
-      <aside className={`${isCollapsed ? 'w-16' : 'w-64'} text-black transition-all duration-300 shadow-md ease-in-out z-50`} >
+      <aside className={`${isCollapsed ? 'w-16' : 'w-64'} text-black transition-all duration-300 shadow-md ease-in-out z-10`} >
         <div className="p-4 flex items-center justify-between">
           {!isCollapsed && <h1 className="text-xl font-bold">Admin Panel</h1>}
           <button onClick={() => setIsCollapsed(!isCollapsed)} className="p-2 hover:bg-gray-300 rounded-lg "
@@ -48,7 +48,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden ">
         {/* Top Navigation */}
-        <header className="bg-white shadow-sm z-50">
+        <header className="bg-white shadow-sm z-10">
           <div className="flex items-center justify-end h-16 px-4">
             <HeadlessMenu as="div" className="relative">
               <HeadlessMenu.Button className="flex items-center px-3 py-2 rounded-lg hover:bg-gray-100">
@@ -56,7 +56,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 <ChevronDown size={16} className="ml-2 text-gray-600" />
               </HeadlessMenu.Button>
 
-              <HeadlessMenu.Items className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-50">
+              <HeadlessMenu.Items className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-10">
                 <HeadlessMenu.Item>
                   {({ active }) => (
                     <button className={`${active ? 'bg-gray-100' : ''} w-full text-left px-4 py-2`}                    >
@@ -80,7 +80,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </header>
 
         {/* Main Content Area */}
-        <main className="flex-1 overflow-y-auto bg-[#f3f4f6] p-6">{children}</main>
+        <main className="flex-1 overflow-y-auto bg-[#f3f4f6] p-6"><Outlet /></main>
       </div>
     </div>
   );

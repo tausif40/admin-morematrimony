@@ -10,10 +10,16 @@ export interface User {
 }
 
 export interface Plan {
-  id: string;
+  _id: string;
   name: string;
   price: number;
-  duration: number;
-  features: string[];
-  isPopular: boolean;
+  image: string;
+  userDescription: string;
+  adminDescription: string;
+  duration: string;
+  profileLimit: number;
+  isActive: boolean;
+  Popular: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
