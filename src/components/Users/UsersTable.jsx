@@ -11,13 +11,21 @@ const UsersTable = () => {
 
   const [ openMenu, setOpenMenu ] = useState(null);
   const [ users, setUsers ] = useState([])
-  const [ filter, setFilter ] = useState([])
+  const [ filter, setFilter ] = useState({
+    limit: '50',
+    page: '',
+    isActive: '',
+    search: '',
+    planType: '',
+    plan: '',
+  })
 
   const usersList = useSelector((state) => state.userSlice.users);
   console.log(usersList?.data);
 
 
   useEffect(() => {
+
     dispatch(getUser(filter));
   }, [ dispatch ]);
 
@@ -75,8 +83,8 @@ const UsersTable = () => {
                 <td className="p-4 flex items-center space-x-4">
                   <div className="w-10 h-10 bg-gray-300 rounded-full overflow-hidden">
                     {user?.userDetails[ 0 ]?.profileImage
-                      ? <img src={user?.userDetails[ 0 ]?.profileImage} alt="img" className="rounded-full object-cover" />
-                      : <img src={user.gender === 'male' ? male : female} alt="img" className="rounded-full object-cover" />
+                      ? <img src={user?.userDetails[ 0 ]?.profileImage} alt="img" className="w-10 h-10 rounded-full object-cover" />
+                      : <img src={user.gender === 'male' ? male : female} alt="img" className="w-10 h-10 rounded-full object-cover" />
                     }
                   </div>
                   <div>
