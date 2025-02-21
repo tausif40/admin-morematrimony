@@ -104,7 +104,7 @@ const UsersTable = () => {
                 </td>
                 <td className="p-4 text-gray-600 text-center"><p className="min-w-max">{formateDate(user.dateOfBirth)?.formattedDate}</p></td>
 
-                <td className="p-4 text-gray-600 text-center capitalize">{user._id?.slice(-8)}</td>
+                <td className="p-4 text-gray-600 text-center uppercase">{user._id?.slice(-8)}</td>
                 <td className="p-4 relative text-center">
                   <button
                     className="p-2 rounded-full hover:bg-gray-200"
