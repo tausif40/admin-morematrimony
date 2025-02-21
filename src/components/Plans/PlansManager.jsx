@@ -15,7 +15,7 @@ export default function PlansManager() {
   const [ plans, setPlans ] = useState([])
 
   const getPlan = useSelector((state) => state.planSlice.plans);
-  console.log(getPlan?.data?.plans);
+  // console.log(getPlan?.data?.plans);
 
   useEffect(() => {
     setPlans(getPlan?.data?.plans)

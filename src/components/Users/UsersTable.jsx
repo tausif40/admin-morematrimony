@@ -1,0 +1,127 @@
+import React, { useState, useRef, useEffect } from "react";
+import { FaEllipsisV } from "react-icons/fa";
+import { useDispatch, useSelector } from "react-redux";
+import { getUser } from "../../store/features/user-slice";
+import male from '../../img/male.png'
+import female from '../../img/female.png'
+
+const UsersTable = () => {
+  const menuRef = useRef(null);
+  const dispatch = useDispatch();
+
+  const [ openMenu, setOpenMenu ] = useState(null);
+  const [ users, setUsers ] = useState([])
+  const [ filter, setFilter ] = useState([])
+
+  const usersList = useSelector((state) => state.userSlice.users);
+  console.log(usersList?.data);
+
+
+  useEffect(() => {
+    dispatch(getUser(filter));
+  }, [ dispatch ]);
+
+  useEffect(() => {
+    setUsers(usersList?.data?.users)
+  }, [ usersList ])
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setOpenMenu(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+
+  const formateDate = (formaDate) => {
+    const date = new Date(formaDate);
+    const formattedDate = `${date.getDate().toString().padStart(2, "0")}-${(date.getMonth() + 1).toString().padStart(2, "0")}-${date.getFullYear()}`;
+    const today = new Date();
+    const timeDiff = date.getTime() - today.getTime();
+    const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+
+    return { formattedDate, daysLeft };
+  }
+
+  return (
+    <>
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-bold text-gray-900">Users Table</h1>
+      </div>
+
+
+
+      <div className="overflow-x-visible p-2">
+        <table className="min-w-full bg-white shadow-md rounded-lg">
+          <thead>
+            <tr className="bg-slate-200 text-left text-gray-700">
+              <th className="p-4 text-center">USER</th>
+              <th className="p-4">Gender</th>
+              <th className="p-4">STATUS</th>
+              <th className="p-4 text-center">plan Expiry</th>
+              <th className="p-4  text-center">DOB</th>
+              <th className="p-4 text-center">ID</th>
+              <th className="p-4 text-center">ACTIONS</th>
+            </tr>
+          </thead>
+          <tbody>
+            {users?.map((user) => (
+              <tr key={user._id} className={`${openMenu === user._id ? 'bg-red-50' : 'hover:bg-gray-50'} border-t `}>
+                <td className="p-4 flex items-center space-x-4">
+                  <div className="w-10 h-10 bg-gray-300 rounded-full overflow-hidden">
+                    {user?.userDetails[ 0 ]?.profileImage
+                      ? <img src={user?.userDetails[ 0 ]?.profileImage} alt="img" className="rounded-full object-cover" />
+                      : <img src={user.gender === 'male' ? male : female} alt="img" className="rounded-full object-cover" />
+                    }
+                  </div>
+                  <div>
+                    <p className="font-semibold capitalize">{user.firstName} {user.lastName}</p>
+                    <p className="text-gray-500 text-sm">{user.email}</p>
+                  </div>
+                </td>
+                <td className="p-4 text-gray-600 capitalize">{user.gender}</td>
+                <td className="p-4">
+                  <span className="px-3 py-1 text-sm text-green-700 bg-green-100 rounded-full">
+                    {user.isActive ? 'Active' : 'Inactive'}
+                  </span>
+                </td>
+                <td className="p-4 text-gray-600 text-center">
+                  <p className="min-w-max text-sm text-red-600">{user.planExpiry ? `${formateDate(user.planExpiry)?.daysLeft} left` : ''}</p>
+                  <p className="min-w-max">{user.planExpiry ? formateDate(user.planExpiry)?.formattedDate : '-'}</p>
+                </td>
+                <td className="p-4 text-gray-600 text-center"><p className="min-w-max">{formateDate(user.dateOfBirth)?.formattedDate}</p></td>
+
+                <td className="p-4 text-gray-600 text-center capitalize">{user._id?.slice(-8)}</td>
+                <td className="p-4 relative text-center">
+                  <button
+                    className="p-2 rounded-full hover:bg-gray-200"
+                    onClick={() => setOpenMenu(openMenu === user._id ? null : user._id)}
+                  >
+                    <FaEllipsisV />
+                  </button>
+                  {openMenu === user._id && (
+                    <div
+                      ref={menuRef}
+                      className="absolute right-12 mt-2 w-40 bg-white border rounded-lg shadow-md z-20"
+                    >
+                      <button className="block w-full text-left px-4 py-2 hover:bg-gray-100">View</button>
+                      <button className="block w-full text-left px-4 py-2 hover:bg-gray-100">Edit</button>
+                      <button className="block w-full text-left px-4 py-2 hover:bg-gray-100">Delete</button>
+                    </div>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
+  );
+};
+
+export default UsersTable;

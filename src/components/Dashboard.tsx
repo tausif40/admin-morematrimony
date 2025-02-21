@@ -12,7 +12,7 @@ const stats = [
     hoverColor: 'hover:from-blue-600 hover:to-blue-700',
   },
   {
-    title: 'Premium Members',
+    title: 'Paid Members',
     value: '2,567',
     icon: Crown,
     change: '+23%',

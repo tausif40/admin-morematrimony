@@ -4,7 +4,7 @@ import apiClient from '../../api/apiClient';
 export const addPlan = createAsyncThunk('plan/addPlan', async (data, { rejectWithValue }) => {
 	try {
 		const response = await apiClient.post(`/plan`, data);
-		console.log(response.data);
+		// console.log(response.data);
 		return response.data;
 	} catch (error) {
 		console.log(error);
@@ -14,7 +14,7 @@ export const addPlan = createAsyncThunk('plan/addPlan', async (data, { rejectWit
 export const getPlans = createAsyncThunk('plan/getPlans', async (_, { rejectWithValue }) => {
 	try {
 		const response = await apiClient.get(`/plan`);
-		console.log(response.data);
+		// console.log(response.data);
 		return response.data;
 	} catch (error) {
 		console.log(error);
