@@ -1,37 +1,61 @@
 import React, { useState, useRef, useEffect } from "react";
-import { FaEllipsisV } from "react-icons/fa";
+import { IoEllipsisVertical } from "react-icons/io5";
+import { AiOutlineLogin } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
-import { getUser } from "../../store/features/user-slice";
+import { getUser, loginByAdmin, setFilter } from "../../store/features/user-slice";
 import male from '../../img/male.png'
 import female from '../../img/female.png'
+import { Pagination } from 'antd';
+import { useNavigate } from "react-router-dom";
 
 const UsersTable = () => {
   const menuRef = useRef(null);
   const dispatch = useDispatch();
+  const navigate = useNavigate()
 
   const [ openMenu, setOpenMenu ] = useState(null);
-  const [ users, setUsers ] = useState([])
-  const [ filter, setFilter ] = useState({
-    limit: '50',
+  const [ users, setUsers ] = useState([]);
+
+  const [ filterList, setFilterList ] = useState({
     page: '',
-    isActive: '',
-    search: '',
-    planType: '',
-    plan: '',
+    limit: '',
+    totalUsers: '',
   })
 
   const usersList = useSelector((state) => state.userSlice.users);
-  console.log(usersList?.data);
-
+  const filterData = useSelector((state) => state.userSlice.filter);
+  console.log("usersList- ", usersList?.data);
+  console.log("filterData- ", filterData);
+  console.log("filterList - ", filterList);
+  const prevFilterListRef = useRef(filterList);
 
   useEffect(() => {
+    if (usersList?.data && (filterList.limit !== usersList.data.limit || filterList.page !== usersList.data.page || filterList.totalUsers !== usersList.data.totalUsers)
+    ) {
+      setFilterList((prevFilter) => ({
+        ...prevFilter,
+        limit: filterData?.limit,
+        page: filterData?.page || usersList.data.currentPage,
+        totalUsers: filterData?.totalUsers || usersList.data.totalUsers,
+      }));
+    }
+    dispatch(setFilter(filterList));
+  }, [ usersList, filterData ]);
 
-    dispatch(getUser(filter));
+  useEffect(() => {
+    if (JSON.stringify(prevFilterListRef.current) !== JSON.stringify(filterList)) {
+      dispatch(getUser(filterList));
+      prevFilterListRef.current = filterList;
+    }
+  }, [ filterList, dispatch ]);
+
+  useEffect(() => {
+    dispatch(getUser(filterList));
   }, [ dispatch ]);
 
   useEffect(() => {
-    setUsers(usersList?.data?.users)
-  }, [ usersList ])
+    setUsers(usersList?.data?.users);
+  }, [ usersList ]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -45,6 +69,18 @@ const UsersTable = () => {
     };
   }, []);
 
+  const handelLogin = (id) => {
+    dispatch(loginByAdmin(id))
+      .then((res) => {
+        console.log(res);
+        const accessToken = res?.payload?.admin?.tokens?.access?.token;
+        const refreshToken = res?.payload?.admin?.tokens?.refresh?.token;
+        const url = `https://morematrimony.com/?token=${accessToken}`;
+        window.open(url, '_blank');
+      }).catch((err) => {
+        console.log(err);
+      })
+  }
 
   const formateDate = (formaDate) => {
     const date = new Date(formaDate);
@@ -61,11 +97,16 @@ const UsersTable = () => {
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold text-gray-900">Users Table</h1>
       </div>
-
-
-
-      <div className="overflow-x-visible p-2">
-        <table className="min-w-full bg-white shadow-md rounded-lg">
+      <div className="w-full my-4 flex gap-4">
+        <input type="text" className="w-full p-2" />
+        <select name="" id="" className="p-2">
+          <option value="">Free user</option>
+          <option value="">Paid User</option>
+          <option value=""></option>
+        </select>
+      </div>
+      <div className="overflow-x-auto bg-white shadow-md rounded-lg p-2">
+        <table className="min-w-full  ">
           <thead>
             <tr className="bg-slate-200 text-left text-gray-700">
               <th className="p-4 text-center">USER</th>
@@ -74,6 +115,7 @@ const UsersTable = () => {
               <th className="p-4 text-center">plan Expiry</th>
               <th className="p-4  text-center">DOB</th>
               <th className="p-4 text-center">ID</th>
+              <th className="p-4 text-center">Login</th>
               <th className="p-4 text-center">ACTIONS</th>
             </tr>
           </thead>
@@ -95,22 +137,25 @@ const UsersTable = () => {
                 <td className="p-4 text-gray-600 capitalize">{user.gender}</td>
                 <td className="p-4">
                   <span className="px-3 py-1 text-sm text-green-700 bg-green-100 rounded-full">
-                    {user.isActive ? 'Active' : 'Inactive'}
+                    {user.__v === 0 ? 'Active' : 'Inactive'}
                   </span>
                 </td>
                 <td className="p-4 text-gray-600 text-center">
-                  <p className="min-w-max text-sm text-red-600">{user.planExpiry ? `${formateDate(user.planExpiry)?.daysLeft} left` : ''}</p>
+                  <p className="min-w-max text-sm text-red-600">{user.planExpiry ? `${formateDate(user.planExpiry)?.daysLeft} days left` : ''}</p>
                   <p className="min-w-max">{user.planExpiry ? formateDate(user.planExpiry)?.formattedDate : '-'}</p>
                 </td>
                 <td className="p-4 text-gray-600 text-center"><p className="min-w-max">{formateDate(user.dateOfBirth)?.formattedDate}</p></td>
 
                 <td className="p-4 text-gray-600 text-center uppercase">{user._id?.slice(-8)}</td>
+                <td className="p-4 text-gray-600 text-center">
+                  <p className="cursor-pointer p-2" onClick={() => handelLogin(user._id)} style={{ display: 'inline-block' }}><AiOutlineLogin size={20} /></p>
+                </td>
                 <td className="p-4 relative text-center">
                   <button
                     className="p-2 rounded-full hover:bg-gray-200"
                     onClick={() => setOpenMenu(openMenu === user._id ? null : user._id)}
                   >
-                    <FaEllipsisV />
+                    <IoEllipsisVertical />
                   </button>
                   {openMenu === user._id && (
                     <div
@@ -119,7 +164,7 @@ const UsersTable = () => {
                     >
                       <button className="block w-full text-left px-4 py-2 hover:bg-gray-100">View</button>
                       <button className="block w-full text-left px-4 py-2 hover:bg-gray-100">Edit</button>
-                      <button className="block w-full text-left px-4 py-2 hover:bg-gray-100">Delete</button>
+                      <button className="block w-full text-left px-4 py-2 hover:bg-gray-100">Inactive</button>
                     </div>
                   )}
                 </td>
@@ -127,6 +172,14 @@ const UsersTable = () => {
             ))}
           </tbody>
         </table>
+      </div>
+      <div className="mt-10 bg-white p-2 rounded-lg border">
+        <Pagination align="center" defaultCurrent={filterData?.page} total={filterList?.totalUsers} pageSize={filterList?.limit || 10}
+          onChange={(page) => {
+            console.log(page);
+            setFilterList((prev) => ({ ...prev, page: page }));
+          }}
+        />
       </div>
     </>
   );
