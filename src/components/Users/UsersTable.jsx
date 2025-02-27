@@ -24,9 +24,6 @@ const UsersTable = () => {
 
   const usersList = useSelector((state) => state.userSlice.users);
   const filterData = useSelector((state) => state.userSlice.filter);
-  console.log("usersList- ", usersList?.data);
-  console.log("filterData- ", filterData);
-  console.log("filterList - ", filterList);
   const prevFilterListRef = useRef(filterList);
 
   useEffect(() => {
@@ -73,8 +70,8 @@ const UsersTable = () => {
     try {
       const res = await dispatch(loginByAdmin(id)).unwrap();
       console.log(res);
-      const accessToken = res?.payload?.admin?.tokens?.access?.token;
-      const refreshToken = res?.payload?.admin?.tokens?.refresh?.token;
+      const accessToken = res?.admin?.tokens?.access?.token;
+      const refreshToken = res?.admin?.tokens?.refresh?.token;
       const url = `https://morematrimony.com/?token=${accessToken}`;
       window.open(url, '_blank');
     } catch (error) {
@@ -89,8 +86,7 @@ const UsersTable = () => {
   };
 
   const handelNavigate = (useData) => {
-    console.log(useData);
-    navigate('/user/assign-plan', { state: useData })
+    navigate('/users/assign-plan', { state: useData })
   }
 
   const formateDate = (formaDate) => {
@@ -134,14 +130,14 @@ const UsersTable = () => {
             {users?.map((user) => (
               <tr key={user._id} className={`${openMenu === user._id ? 'bg-red-50' : 'hover:bg-gray-50'} border-t `}>
                 <td className="p-4 flex items-center space-x-4">
-                  <div className="w-10 h-10 bg-gray-300 rounded-full overflow-hidden">
+                  <div className="w-10 h-10 bg-gray-300 rounded-full overflow-hidden cursor-pointer" onClick={() => handelNavigate(user)}>
                     {user?.userDetails[ 0 ]?.profileImage
                       ? <img src={user?.userDetails[ 0 ]?.profileImage} alt="img" className="w-10 h-10 rounded-full object-cover" />
                       : <img src={user.gender === 'male' ? male : female} alt="img" className="w-10 h-10 rounded-full object-cover" />
                     }
                   </div>
                   <div>
-                    <p className="font-semibold capitalize">{user.firstName} {user.lastName}</p>
+                    <p className="font-semibold capitalize cursor-pointer hover:text-blue-600 transition" onClick={() => handelNavigate(user)}>{user.firstName} {user.lastName}</p>
                     <p className="text-gray-500 text-sm">{user.email}</p>
                   </div>
                 </td>

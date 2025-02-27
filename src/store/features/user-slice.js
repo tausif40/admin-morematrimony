@@ -5,9 +5,8 @@ import { getQueryParams } from '../../utils/queryParams';
 export const getUser = createAsyncThunk('user/getUser', async (data, { rejectWithValue }) => {
 	try {
 		const filterData = getQueryParams(data)
-		console.log(filterData);
 		const response = await apiClient.get(`/admin/users?${filterData}`);
-		console.log(response.data);
+		// console.log(response.data);
 		return response.data;
 	} catch (error) {
 		console.log(error);
@@ -25,7 +24,7 @@ export const loginByAdmin = createAsyncThunk('user/loginByAdmin', async (id, { r
 });
 export const assignPlan = createAsyncThunk('user/assignPlan', async (data, { rejectWithValue }) => {
 	try {
-		console.log(data);
+		// console.log(data);
 		const response = await apiClient.post(`/plan/admin/set-plan`, data);
 		return response.data;
 	} catch (error) {
@@ -46,8 +45,8 @@ const userSlice = createSlice({
 		setFilter(state, action) {
 			state.filter.limit = action.payload.limit,
 				state.filter.page = action.payload.page,
-				state.filter.totalUsers = action.payload.totalUsers,
-				console.log(action);
+				state.filter.totalUsers = action.payload.totalUsers
+			// console.log(action);
 		}
 	},
 	extraReducers: (builder) => {

@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { UserCircle, Mail, Phone, Edit2, Cake, CalendarDays, DollarSign } from 'lucide-react';
+import { UserCircle, Mail, Phone, Cake, CalendarDays, DollarSign } from 'lucide-react';
 import { IoMaleFemaleOutline } from "react-icons/io5";
 import moment from 'moment';
-import { FaUser, FaEnvelope, FaCalendarAlt, FaIdCard, FaCheckCircle, FaTimesCircle, FaCreditCard } from "react-icons/fa";
+import { FaCalendarAlt, FaCreditCard } from "react-icons/fa";
 import { RiVerifiedBadgeFill } from "react-icons/ri";
 import { useLocation } from "react-router-dom";
-import { CiDollar } from "react-icons/ci";
 import { BsHourglassSplit } from "react-icons/bs";
 import { useDispatch } from "react-redux";
 import { assignPlan } from "../../store/features/user-slice";
-
+import male from '../../img/male.png'
+import female from '../../img/female.png'
+import toast from "react-hot-toast";
 
 const ProfileItem = ({ icon, label, value, isVerifiedEmail, isVerifiedMobile }) => {
 	const [ isHovered, setIsHovered ] = useState(false);
@@ -37,11 +38,18 @@ const ProfileItem = ({ icon, label, value, isVerifiedEmail, isVerifiedMobile }) 
 
 const AssignPlan = () => {
 	const location = useLocation();
-	console.log(location?.state);
 	const dispatch = useDispatch()
 	const [ userData, setUserData ] = useState([]);
 	const [ userId, setUserId ] = useState();
 	const [ planId, setPlanId ] = useState("");
+	const [ isLoading, setIsLoading ] = useState(false);
+	const [ successAssign, setSuccessAssign ] = useState(false);
+	const [ error, setError ] = useState(false);
+
+	// useEffect(() => {
+	// 	window.scrollTo(0, 0);
+	// 	console.log(window.scrollTo(0, 0));
+	// }, [ location.pathname ]);
 
 	useEffect(() => {
 		setUserData(location?.state)
@@ -49,14 +57,22 @@ const AssignPlan = () => {
 	}, [ location ])
 
 	const handleAssignPlan = async () => {
-		// Add logic to assign plan using userId and planId
+		const loadingToast = toast.loading('Assigning...');
 		try {
+			setIsLoading(true)
 			console.log("Assigning plan:", { userId, planId });
 			const res = await dispatch(assignPlan({ userId, planId })).unwrap();
 			console.log(res);
+			setIsLoading(false)
+			setSuccessAssign(true)
+			setError(false)
+			toast.success('Assigned successfully', { id: loadingToast });
 		} catch (err) {
 			console.log(err);
-		}	
+			setIsLoading(false)
+			setError(true)
+			toast.error('Assigned failed.', { id: loadingToast });
+		}
 	};
 
 	return (
@@ -64,13 +80,11 @@ const AssignPlan = () => {
 			<div className="max-w-5xl mx-auto bg-white shadow-md rounded-lg overflow-hidden">
 				{/* User Profile Section */}
 				<div className="px-8 py-3 bg-gradient-to-r from-gold to-red-200 flex items-center gap-8">
-					{userData?.userDetails && (
-						<img
-							src={userData?.userDetails[ 0 ].profileImage}
-							alt="Profile"
-							className="w-32 h-32 rounded-full border-4 border-primary shadow-lg"
-						/>
-					)}
+					{userData?.userDetails && <>
+						{userData?.userDetails[ 0 ]?.profileImage
+							? <img src={userData?.userDetails[ 0 ]?.profileImage} alt="img" className="w-32 h-32 rounded-full object-cover" />
+							: <img src={userData?.gender === 'male' ? male : female} alt="img" className="w-32 h-32 bg-white rounded-full object-cover" />}
+					</>}
 					<div>
 						<h1 className="text-4xl font-bold text-gray-800 capitalize">
 							{`${userData?.firstName || ''} ${userData?.lastName || ''}`}
@@ -150,7 +164,7 @@ const AssignPlan = () => {
 									<DollarSign className="text-green-500 mr-2" />
 									<div>
 										<span className="text-gray-600 font-medium">Plan Price:</span>
-										<span className="text-gray-800 block mt-1">${userData?.planDetails.price}</span>
+										<span className="text-gray-800 block mt-1">BD {userData?.planDetails.price}</span>
 									</div>
 								</div>
 								<div className="bg-gray-50 p-4 rounded-lg shadow-sm flex items-center gap-4">
@@ -190,8 +204,8 @@ const AssignPlan = () => {
 										placeholder="Enter Plan ID"
 									/>
 								</div>
-								<button onClick={handleAssignPlan} className="bg-yellow-400 text-gray-800 px-6 py-3 rounded-md font-semibold hover:bg-yellow-500 transition duration-300 shadow-lg">
-									Assign Plan
+								<button onClick={handleAssignPlan} className={`${isLoading ? 'bg-yellow-300' : successAssign ? 'bg-emerald-400' : error ? 'bg-red-400 hover:bg-yellow-500' : 'bg-yellow-400 hover:bg-yellow-500'}  text-gray-800 px-6 py-3 rounded-md font-semibold transition duration-300 shadow-lg`} disabled={isLoading}>
+									{isLoading ? 'Assigning...' : error ? 'Assign failed! Try Again' : successAssign ? 'Assigned successfully' : 'Assign Plan'}
 								</button>
 							</div>
 						)}

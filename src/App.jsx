@@ -20,7 +20,7 @@ function App() {
 
   return (
     <>
-      <Toaster position="top-right" />
+      <Toaster position="top-right" className='z-50' />
       <Routes>
         <Route path="/login" element={<Login />} />
 
@@ -31,7 +31,7 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/users" element={<UsersTable />} />
             <Route path="/plans" element={<PlansManager />} />
-            <Route path="/user/assign-plan" element={<AssignPlan />} />
+            <Route path="/users/assign-plan" element={<AssignPlan />} />
           </Route>
         </Route>
       </Routes>

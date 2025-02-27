@@ -1,11 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Plus, X } from 'lucide-react';
 import { Dialog } from '@headlessui/react';
-import toast from 'react-hot-toast';
 import { useSelector } from 'react-redux';
 import ShowPlan from './ShowPlan';
-import { UploadOutlined } from '@ant-design/icons';
-import { Button, Upload } from 'antd';
 import AddPlan from './AddPlan';
 
 

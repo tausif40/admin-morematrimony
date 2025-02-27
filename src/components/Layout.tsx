@@ -36,7 +36,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <nav className="mt-8">
           {menuItems.map((item) => (
             <Link key={item.path} to={item.path}
-              className={`flex items-center px-4 py-3 ${location.pathname === item.path ? 'bg-gray-800 text-white' : 'hover:bg-gray-300'}`}
+              className={`flex items-center px-4 py-3 ${location.pathname.startsWith(item.path) ? 'bg-gray-800 text-white' : 'hover:bg-gray-300'}`}
             >
               <item.icon size={20} />
               {!isCollapsed && <span className="ml-4">{item.name}</span>}
