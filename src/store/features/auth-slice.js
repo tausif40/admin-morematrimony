@@ -13,7 +13,7 @@ export const loginUser = createAsyncThunk('auth/loginUser', async (credentials, 
 	// const encryptedUserData = encryptData(credentials);{ encryptedData: encryptedUserData }
 	try {
 		const response = await apiClient.post('/auth/logIn', credentials);
-
+		// console.log(response);
 		return response.data;
 	} catch (error) {
 		console.log(error);
@@ -83,7 +83,7 @@ const authSlice = createSlice({
 	},
 	extraReducers: (builder) => {
 		builder
-		
+
 			//login
 			.addCase(loginUser.pending, (state) => {
 				state.isLoading = true;

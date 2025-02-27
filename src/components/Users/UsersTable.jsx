@@ -5,14 +5,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { getUser, loginByAdmin, setFilter } from "../../store/features/user-slice";
 import male from '../../img/male.png'
 import female from '../../img/female.png'
-import { Pagination } from 'antd';
+import { Pagination, Switch } from 'antd';
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 const UsersTable = () => {
   const menuRef = useRef(null);
   const dispatch = useDispatch();
   const navigate = useNavigate()
-
   const [ openMenu, setOpenMenu ] = useState(null);
   const [ users, setUsers ] = useState([]);
 
@@ -69,17 +69,28 @@ const UsersTable = () => {
     };
   }, []);
 
-  const handelLogin = (id) => {
-    dispatch(loginByAdmin(id))
-      .then((res) => {
-        console.log(res);
-        const accessToken = res?.payload?.admin?.tokens?.access?.token;
-        const refreshToken = res?.payload?.admin?.tokens?.refresh?.token;
-        const url = `https://morematrimony.com/?token=${accessToken}`;
-        window.open(url, '_blank');
-      }).catch((err) => {
-        console.log(err);
-      })
+  const handelLogin = async (id) => {
+    try {
+      const res = await dispatch(loginByAdmin(id)).unwrap();
+      console.log(res);
+      const accessToken = res?.payload?.admin?.tokens?.access?.token;
+      const refreshToken = res?.payload?.admin?.tokens?.refresh?.token;
+      const url = `https://morematrimony.com/?token=${accessToken}`;
+      window.open(url, '_blank');
+    } catch (error) {
+      console.error(error);
+      const errorMessage = error?.response?.message || "Login failed.";
+      toast.error(errorMessage);
+    }
+  }
+
+  const onChange = (checked) => {
+    console.log(`switch to ${checked}`);
+  };
+
+  const handelNavigate = (useData) => {
+    console.log(useData);
+    navigate('/user/assign-plan', { state: useData })
   }
 
   const formateDate = (formaDate) => {
@@ -110,11 +121,11 @@ const UsersTable = () => {
           <thead>
             <tr className="bg-slate-200 text-left text-gray-700">
               <th className="p-4 text-center">USER</th>
+              <th className="p-4 text-center w-36">User ID</th>
               <th className="p-4">Gender</th>
-              <th className="p-4">STATUS</th>
-              <th className="p-4 text-center">plan Expiry</th>
-              <th className="p-4  text-center">DOB</th>
-              <th className="p-4 text-center">ID</th>
+              <th className="p-4 text-center">Plan Expiry</th>
+              <th className="p-4  text-center">Member Since</th>
+              <th className="p-4 text-center">Status</th>
               <th className="p-4 text-center">Login</th>
               <th className="p-4 text-center">ACTIONS</th>
             </tr>
@@ -134,19 +145,21 @@ const UsersTable = () => {
                     <p className="text-gray-500 text-sm">{user.email}</p>
                   </div>
                 </td>
+                <td className="p-4 text-gray-600 text-center uppercase">{user._id?.slice(-8)}</td>
                 <td className="p-4 text-gray-600 capitalize">{user.gender}</td>
-                <td className="p-4">
-                  <span className="px-3 py-1 text-sm text-green-700 bg-green-100 rounded-full">
-                    {user.__v === 0 ? 'Active' : 'Inactive'}
-                  </span>
-                </td>
+
                 <td className="p-4 text-gray-600 text-center">
                   <p className="min-w-max text-sm text-red-600">{user.planExpiry ? `${formateDate(user.planExpiry)?.daysLeft} days left` : ''}</p>
                   <p className="min-w-max">{user.planExpiry ? formateDate(user.planExpiry)?.formattedDate : '-'}</p>
                 </td>
-                <td className="p-4 text-gray-600 text-center"><p className="min-w-max">{formateDate(user.dateOfBirth)?.formattedDate}</p></td>
+                <td className="p-4 text-gray-600 text-center"><p className="min-w-max">{formateDate(user.createdAt)?.formattedDate}</p></td>
+                <td className="p-4 text-center">
+                  <span className="px-3 py-1 text-sm text-green-700 bg-green-100 rounded-full">
+                    {user.__v === 0 ? 'Active' : 'Inactive'}
+                  </span>
+                  {/* <Switch defaultChecked onChange={onChange} /> */}
+                </td>
 
-                <td className="p-4 text-gray-600 text-center uppercase">{user._id?.slice(-8)}</td>
                 <td className="p-4 text-gray-600 text-center">
                   <p className="cursor-pointer p-2" onClick={() => handelLogin(user._id)} style={{ display: 'inline-block' }}><AiOutlineLogin size={20} /></p>
                 </td>
@@ -162,8 +175,8 @@ const UsersTable = () => {
                       ref={menuRef}
                       className="absolute right-12 mt-2 w-40 bg-white border rounded-lg shadow-md z-20"
                     >
-                      <button className="block w-full text-left px-4 py-2 hover:bg-gray-100">View</button>
-                      <button className="block w-full text-left px-4 py-2 hover:bg-gray-100">Edit</button>
+                      <button className="block w-full text-left px-4 py-2 hover:bg-gray-100" onClick={() => handelNavigate(user)}>View</button>
+                      {/* <button className="block w-full text-left px-4 py-2 hover:bg-gray-100">Assign Plan</button> */}
                       <button className="block w-full text-left px-4 py-2 hover:bg-gray-100">Inactive</button>
                     </div>
                   )}

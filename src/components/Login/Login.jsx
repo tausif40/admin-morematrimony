@@ -18,35 +18,30 @@ const Login = () => {
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
+		const loadingToast = toast.loading('Logging in...');
+		setLoading(true);
+
 		try {
-			const loadingToast = toast.loading('Logging...');
-			setLoading(true);
-			dispatch(loginUser({ email, password }))
-				.then((response) => {
-					setLoading(false);
-					const data = response?.payload
-					console.log(response);
-					// if (data?.user?.isVerifiedEmail === true) {
-					Cookies.set('access_token', data?.tokens?.access?.token);
-					Cookies.set('refresh_token', data?.tokens?.refresh?.token);
-					navigate('/dashboard');
-					toast.success(("Login successful!"), { id: loadingToast })
-					// }
-					// toast.dismiss(loadingToast);
-				}).catch((error) => {
-					console.log(error);
-					const errorMessage = error?.response?.data?.message || error?.message || "Login failed.";
-					console.log(errorMessage);
-					setLoading(false);
-					toast.error(errorMessage, { id: loadingToast })
-				})
+			// Dispatch the loginUser async thunk and unwrap the result
+			const data = await dispatch(loginUser({ email, password })).unwrap();
+			// console.log(data);
+			// If successful, store tokens and navigate
+			Cookies.set('access_token', data.tokens.access.token);
+			Cookies.set('refresh_token', data.tokens.refresh.token);
+			navigate('/dashboard');
+			toast.success("Login successful!", { id: loadingToast });
+
 		} catch (error) {
-			// toast.dismiss(loadingToast);
-			console.error('Login error:', error);
-			toast.error('An unexpected error occurred. Please try again later.');
-			setLoading(false)
+			// Handle error properly
+			console.error(error);
+			const errorMessage = error?.message || "Login failed.";
+			toast.error(errorMessage, { id: loadingToast });
+
+		} finally {
+			setLoading(false);
 		}
 	};
+
 
 	const togglePasswordVisibility = () => {
 		setShowPassword(!showPassword);

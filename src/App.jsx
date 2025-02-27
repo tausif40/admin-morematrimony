@@ -9,6 +9,7 @@ import { useDispatch } from 'react-redux';
 import { getPlans } from './store/features/plans-slice';
 import Login from './components/Login/Login';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
+import AssignPlan from './components/Users/AssignPlan';
 
 function App() {
   const dispatch = useDispatch();
@@ -30,6 +31,7 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/users" element={<UsersTable />} />
             <Route path="/plans" element={<PlansManager />} />
+            <Route path="/user/assign-plan" element={<AssignPlan />} />
           </Route>
         </Route>
       </Routes>

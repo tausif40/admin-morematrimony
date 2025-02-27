@@ -8,14 +8,12 @@ import { UploadOutlined } from '@ant-design/icons';
 import { Button, Upload } from 'antd';
 import AddPlan from './AddPlan';
 
+
 export default function PlansManager() {
   const [ isOpen, setIsOpen ] = useState(false);
   const [ editingPlan, setEditingPlan ] = useState([]);
-  const [ showDeleteConfirm, setShowDeleteConfirm ] = useState(null);
   const [ plans, setPlans ] = useState([])
-
   const getPlan = useSelector((state) => state.planSlice.plans);
-  // console.log(getPlan?.data?.plans);
 
   useEffect(() => {
     setPlans(getPlan?.data?.plans)
@@ -29,8 +27,6 @@ export default function PlansManager() {
     userDescription: "",
     adminDescription: "",
   });
-
-
 
   return (
     <div className="space-y-6">
@@ -62,38 +58,6 @@ export default function PlansManager() {
         </div>
       </Dialog>
 
-      {/* Delete Confirmation Modal */}
-      <Dialog
-        open={Boolean(showDeleteConfirm)}
-        onClose={() => setShowDeleteConfirm(null)}
-        className="fixed inset-0 z-10 overflow-y-auto"
-      >
-        <div className="flex items-center justify-center min-h-screen">
-          <Dialog.Overlay className="fixed inset-0 bg-black opacity-30" />
-
-          <div className="relative bg-white rounded-xl max-w-md w-full mx-4 p-6">
-            <Dialog.Title className="text-lg font-medium mb-4">
-              Confirm Delete
-            </Dialog.Title>
-            <p className="text-gray-500 mb-4">
-              Are you sure you want to delete this plan? This action cannot be undone.
-            </p>
-            <div className="flex gap-4">
-              <button
-                onClick={() => setShowDeleteConfirm(null)}
-                className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200"
-              >
-                Cancel
-              </button>
-              <button onClick={() => showDeleteConfirm && handleDelete(showDeleteConfirm)}
-                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      </Dialog>
     </div>
   );
 }

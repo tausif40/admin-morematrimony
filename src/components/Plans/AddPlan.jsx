@@ -3,13 +3,23 @@ import { UploadOutlined } from '@ant-design/icons';
 import { Button, Upload } from 'antd';
 import axios from "axios";
 import Cookies from 'js-cookie';
+import { useDispatch } from 'react-redux';
+import { getPlans } from '../../store/features/plans-slice';
 
 function AddPlan({ editingPlan }) {
-	const [ isOpen, setIsOpen ] = useState(false);
+	const dispatch = useDispatch();
+	const [ loading, setIsLoading ] = useState(false);
+	const [ response, setResponse ] = useState(false);
+	const [ error, setError ] = useState('');
 	// const [ editingPlan, setEditingPlan ] = useState(null);
 	const [ showDeleteConfirm, setShowDeleteConfirm ] = useState(null);
 	const BASE_URL = import.meta.env.VITE_APP_BASE_URL;
 	const token = Cookies.get('access_token');
+
+
+	useEffect(() => {
+		dispatch(getPlans());
+	}, [ dispatch, response ]);
 
 	const [ formData, setFormData ] = useState({
 		name: "",
@@ -23,6 +33,7 @@ function AddPlan({ editingPlan }) {
 
 	useEffect(() => {
 		console.log(editingPlan);
+		setResponse(false)
 		if (editingPlan) {
 			setFormData({
 				name: editingPlan.name || "",
@@ -39,7 +50,8 @@ function AddPlan({ editingPlan }) {
 	// Handle input change
 	const handleChange = (e) => {
 		const { name, type, value, checked, files } = e.target;
-		console.log(files);
+		// console.log(files);
+		setError('')
 		setFormData((prevData) => ({
 			...prevData,
 			[ name ]: type === "checkbox" ? checked : type === "file" ? files[ 0 ] : value,
@@ -55,23 +67,34 @@ function AddPlan({ editingPlan }) {
 			formPayload.append(key, formData[ key ]);
 		});
 
-		for (const [ key, value ] of formPayload.entries()) {
-			console.log(`${key}:`, value);
-		}
+		// for (const [ key, value ] of formPayload.entries()) {
+		// 	console.log(`${key}:`, value);
+		// }
 
 		try {
+			setIsLoading(true)
 			const response = editingPlan ? await axios.put(`${BASE_URL}/plan/${editingPlan._id}`, formPayload, {
-				Authorization: `Bearer ${token}`,
-				headers: { "Content-Type": "multipart/form-data" },
+				headers: {
+					"Content-Type": "multipart/form-data",
+					Authorization: `Bearer ${token}`,
+				},
 			})
 				: await axios.post(`${BASE_URL}/plan`, formPayload, {
-					Authorization: `Bearer ${token}`,
-					headers: { "Content-Type": "multipart/form-data" },
+					headers: {
+						"Content-Type": "multipart/form-data",
+						Authorization: `Bearer ${token}`,
+					},
 				});
 			console.log(response);
+			setIsLoading(false)
+			if (response.status = 201) {
+				setResponse(true)
+			}
 			console.log(editingPlan ? "Plan updated successfully!" : "Plan created successfully!");
 		} catch (error) {
 			console.error("Error saving plan:", error);
+			setIsLoading(false)
+			setError(error?.response?.data?.message)
 		}
 	};
 
@@ -110,12 +133,15 @@ function AddPlan({ editingPlan }) {
 					<input type="file" name="file" value={formData.image} onChange={handleChange} className="input" />
 				</div>
 				<div className="flex items-center">
+					<p className="ml-2 block text-sm text-red-500" htmlFor="isPopular">{error}</p>
+				</div>
+				{/* <div className="flex items-center">
 					<input type="checkbox" name="isPopular" id="isPopular" checked={formData.isPopular} onChange={handleChange} className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" />
 					<label className="ml-2 block text-sm text-gray-700" htmlFor="isPopular">Mark as Popular</label>
-				</div>
+				</div> */}
 
-				<button type="submit" className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
-					{editingPlan ? "Update Plan" : "Create Plan"}
+				<button type="submit" className={`w-full px-4 py-2 text-white rounded-lg ${response ? 'bg-emerald-500' : 'bg-indigo-600 hover:bg-indigo-700'}`} disabled={loading}>
+					{editingPlan ? loading ? "Updating Plan.." : response ? "Plan Updated" : "Update Plan" : loading ? "Creating Plan.." : response ? "Plan Created" : "Create Plan"}
 				</button>
 			</form>
 
