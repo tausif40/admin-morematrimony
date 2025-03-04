@@ -1,0 +1,64 @@
+name: CI/CD Workflow vulture
+
+on:
+  push:
+    branches: [ main ] 
+
+jobs:
+  deploy: 
+    name: DeployToProduction 
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          repository: tausif40/admin-morematrimony # Replace with your repo name
+          ref: main 
+          token: ${{ secrets.TOKEN }} # Use your secret
+
+      - name: Connect to VPS using SSH
+        uses: webfactory/ssh-agent@v0.5.4 
+        with:
+          ssh-private-key: ${{ secrets.PRIVATE_KEY }} 
+
+      - name: Check Existing Directory and Delete
+        run: ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} 'if [[ -d /var/www/fontend-admin-morematrimony/admin-morematrimony ]]; then rm -rf /var/www/fontend-admin-morematrimony/admin-morematrimony; fi'
+
+      - name: Clone Repository (using PAT)
+        run: ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} 'git clone https://tausif40:${{ secrets.TOKEN }}@github.com/tausif40/admin-morematrimony.git /var/www/fontend-admin-morematrimony/admin-morematrimony'
+
+      - name: Check File Permissions
+        run: ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} 'ls -lah /var/www/fontend-admin-morematrimony/admin-morematrimony/'
+      - name: Check if TEST_SECRETS is Set
+        run: |
+         if [[ -z "${{ secrets.TEST_SECRETS }}" ]]; then
+         echo "TEST_SECRETS is EMPTY!"
+         exit 1
+         else
+         echo "TEST_SECRETS is SET!"
+         fi
+    
+      - name: Create .env file on Remote Server
+        run: |
+         ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
+         echo "${{ secrets.TEST_SECRETS }}" > /var/www/fontend-admin-morematrimony/admin-morematrimony/.env
+         EOF
+
+      - name: Debug .env File
+        run: ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} 'cat /var/www/fontend-admin-morematrimony/admin-morematrimony/.env'
+
+      - name: Check If .env File Exists
+        run: ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} 'ls -l /var/www/fontend-admin-morematrimony/admin-morematrimony/.env'
+      - name: Install Dependencies
+        run: ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} 'cd /var/www/fontend-admin-morematrimony/admin-morematrimony && npm install'
+
+      - name: Build Project
+        run: ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} 'cd /var/www/fontend-admin-morematrimony/admin-morematrimony && npm run build'
+        
+      - name: Copy Build to Nginx Directory
+        run: ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} 'rsync -avz --delete /var/www/fontend-admin-morematrimony/admin-morematrimony/build/ /var/www/html/admin-morematrimony/'
+      - name: Restart Nginx
+        run: ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} 'sudo systemctl restart nginx'
+        
+     
