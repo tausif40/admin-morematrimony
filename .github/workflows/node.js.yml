@@ -55,9 +55,15 @@ jobs:
 
       - name: Build Project
         run: ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} 'cd /var/www/fontend-admin-morematrimony/admin-morematrimony && npm run build'
-        
+      - name: Copy Build to Nginx Directory
+        run: ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} 'rsync -avz --delete /var/www/fontend-admin-morematrimony/admin-morematrimony/dist/ /var/www/html/admin-morematrimony/'
+
       - name: Copy Build to Nginx Directory
         run: ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} 'rsync -avz --delete /var/www/fontend-admin-morematrimony/admin-morematrimony/build/ /var/www/html/admin-morematrimony/'
+
+      - name: Copy Build to Nginx Directory
+        run: ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} 'rsync -avz --delete /var/www/fontend-admin-morematrimony/admin-morematrimony/dist/ /var/www/html/admin-morematrimony/'
+
       - name: Restart Nginx
         run: ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} 'sudo systemctl restart nginx'
         
