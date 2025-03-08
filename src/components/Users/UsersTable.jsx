@@ -72,6 +72,7 @@ const UsersTable = () => {
       console.log(res);
       const accessToken = res?.admin?.tokens?.access?.token;
       const refreshToken = res?.admin?.tokens?.refresh?.token;
+      // const url = `http://localhost:3000/?token=${accessToken}`;
       const url = `https://morematrimony.com/?token=${accessToken}`;
       window.open(url, '_blank');
     } catch (error) {

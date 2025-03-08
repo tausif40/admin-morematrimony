@@ -16,7 +16,6 @@ function AddPlan({ editingPlan }) {
 	const BASE_URL = import.meta.env.VITE_APP_BASE_URL;
 	const token = Cookies.get('access_token');
 
-
 	useEffect(() => {
 		dispatch(getPlans());
 	}, [ dispatch, response ]);
@@ -113,7 +112,7 @@ function AddPlan({ editingPlan }) {
 					</div>
 					<div>
 						<label className="block text-sm font-medium text-gray-700">Duration (months)</label>
-						<input type="text" name="duration" value={formData.duration} onChange={handleChange} required min="1" className="input" />
+						<input type="number" name="duration" value={formData.duration} onChange={handleChange} required min="1" className="input" />
 					</div>
 					<div>
 						<label className="block text-sm font-medium text-gray-700">Profile Limit</label>

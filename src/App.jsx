@@ -6,7 +6,7 @@ import Dashboard from './components/Dashboard';
 import UsersTable from './components/Users/UsersTable';
 import PlansManager from './components/Plans/PlansManager';
 import { useDispatch } from 'react-redux';
-import { getPlans } from './store/features/plans-slice';
+import { getActivePlan, getPlans } from './store/features/plans-slice';
 import Login from './components/Login/Login';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import AssignPlan from './components/Users/AssignPlan';
@@ -16,6 +16,7 @@ function App() {
 
   useEffect(() => {
     dispatch(getPlans());
+    dispatch(getActivePlan());
   }, [ dispatch ]);
 
   return (

@@ -127,7 +127,7 @@ function ShowPlan({ plan, editingPlan, isOpen }) {
 
 											<div className="mb-6 flex items-baseline gap-1">
 												<span className={`text-4xl font-bold ${colors.accent}`}>BD {plan.price}</span>
-												<span className="text-lg text-gray-500">/{plan.duration}</span>
+												<span className="text-lg text-gray-500">/{plan.duration} {plan.duration === '1' ? 'Month' : 'Months'}</span>
 											</div>
 
 											<div className="space-y-4 mb-8">

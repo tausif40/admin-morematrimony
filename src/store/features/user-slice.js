@@ -24,7 +24,7 @@ export const loginByAdmin = createAsyncThunk('user/loginByAdmin', async (id, { r
 });
 export const assignPlan = createAsyncThunk('user/assignPlan', async (data, { rejectWithValue }) => {
 	try {
-		// console.log(data);
+		console.log(data);
 		const response = await apiClient.post(`/plan/admin/set-plan`, data);
 		return response.data;
 	} catch (error) {

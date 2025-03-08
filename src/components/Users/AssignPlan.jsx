@@ -6,7 +6,7 @@ import { FaCalendarAlt, FaCreditCard } from "react-icons/fa";
 import { RiVerifiedBadgeFill } from "react-icons/ri";
 import { useLocation } from "react-router-dom";
 import { BsHourglassSplit } from "react-icons/bs";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { assignPlan } from "../../store/features/user-slice";
 import male from '../../img/male.png'
 import female from '../../img/female.png'
@@ -40,28 +40,42 @@ const AssignPlan = () => {
 	const location = useLocation();
 	const dispatch = useDispatch()
 	const [ userData, setUserData ] = useState([]);
+	const [ planList, setPlanList ] = useState([]);
 	const [ userId, setUserId ] = useState();
 	const [ planId, setPlanId ] = useState("");
 	const [ isLoading, setIsLoading ] = useState(false);
 	const [ successAssign, setSuccessAssign ] = useState(false);
 	const [ error, setError ] = useState(false);
+	const [ selectedPlan, setSelectedPlan ] = useState("");
 
 	// useEffect(() => {
 	// 	window.scrollTo(0, 0);
 	// 	console.log(window.scrollTo(0, 0));
 	// }, [ location.pathname ]);
 
+	const activePlanList = useSelector((state) => state.planSlice.activePlan);
+	useEffect(() => {
+		console.log(activePlanList?.data?.plans);
+		setPlanList(activePlanList?.data?.plans)
+	}, [ activePlanList ])
+
 	useEffect(() => {
 		setUserData(location?.state)
 		setUserId(location?.state?._id)
 	}, [ location ])
 
+
 	const handleAssignPlan = async () => {
+		if (selectedPlan === '') {
+			toast.error('Please Select PLan');
+			return;
+		}
 		const loadingToast = toast.loading('Assigning...');
 		try {
 			setIsLoading(true)
-			console.log("Assigning plan:", { userId, planId });
-			const res = await dispatch(assignPlan({ userId, planId })).unwrap();
+			const data = { userId: userId, planId: selectedPlan }
+			console.log("Assigning plan:", data);
+			const res = await dispatch(assignPlan(data)).unwrap();
 			console.log(res);
 			setIsLoading(false)
 			setSuccessAssign(true)
@@ -187,22 +201,21 @@ const AssignPlan = () => {
 						) : (
 							// Assign Plan Section
 							<div className="flex flex-col space-y-4">
-								<div className="flex items-center">
-									<label htmlFor="userId" className="text-gray-600 font-medium w-32">
-										User ID:
-									</label>
-									<input type="text" id="userId" value={userId} readOnly
-										className="flex-1 p-2 border border-gray-300 rounded-md bg-gray-50"
-									/>
-								</div>
-								<div className="flex items-center">
-									<label htmlFor="planId" className="text-gray-600 font-medium w-32">
-										Plan ID:
-									</label>
-									<input type="text" id="planId" value={planId} onChange={(e) => setPlanId(e.target.value)}
-										className="flex-1 p-2 border border-gray-300 rounded-md bg-gray-50"
-										placeholder="Enter Plan ID"
-									/>
+
+								<div className="w-full">
+									<label className="block text-sm font-medium text-gray-700">Select a Plan</label>
+									<select
+										className="w-full mt-3 mb-4 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+										value={selectedPlan}
+										onChange={(e) => setSelectedPlan(e.target.value)}
+									>
+										<option value="">Choose a Plan</option>
+										{planList?.map((plan) => (
+											<option key={plan._id} value={plan._id}>
+												{plan.name} - {plan.price} BD ({plan.duration} Month{plan.duration === '1' ? "" : "s"})
+											</option>
+										))}
+									</select>
 								</div>
 								<button onClick={handleAssignPlan} className={`${isLoading ? 'bg-yellow-300' : successAssign ? 'bg-emerald-400' : error ? 'bg-red-400 hover:bg-yellow-500' : 'bg-yellow-400 hover:bg-yellow-500'}  text-gray-800 px-6 py-3 rounded-md font-semibold transition duration-300 shadow-lg`} disabled={isLoading}>
 									{isLoading ? 'Assigning...' : error ? 'Assign failed! Try Again' : successAssign ? 'Assigned successfully' : 'Assign Plan'}
