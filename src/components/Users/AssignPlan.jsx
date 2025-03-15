@@ -102,7 +102,7 @@ const AssignPlan = () => {
 				<div className="px-8 py-3 bg-gradient-to-r from-gold to-red-200 flex items-center gap-8">
 					{userData?.userDetails && <>
 						{userData?.userDetails[ 0 ]?.profileImage
-							? <img src={userData?.userDetails[ 0 ]?.profileImage} alt="img" className="w-32 h-32 rounded-full object-cover" />
+							? <img src={userData?.userDetails[ 0 ]?.profileImage} alt="img" className="w-32 h-32 rounded-full object-cover bg-white" />
 							: <img src={userData?.gender === 'male' ? male : female} alt="img" className="w-32 h-32 bg-white rounded-full object-cover" />}
 					</>}
 					<div>
@@ -177,21 +177,21 @@ const AssignPlan = () => {
 									<FaCreditCard className="text-green-500 mr-2" />
 									<div>
 										<span className="text-gray-600 font-medium">Plan Name:</span>
-										<span className="text-gray-800 block mt-1">{userData?.planDetails.name}</span>
+										<span className="text-gray-800 block mt-1">{userData?.planDetails?.name}</span>
 									</div>
 								</div>
 								<div className="bg-gray-50 p-4 rounded-lg shadow-sm flex items-center gap-4">
 									<DollarSign className="text-green-500 mr-2" />
 									<div>
 										<span className="text-gray-600 font-medium">Plan Price:</span>
-										<span className="text-gray-800 block mt-1">BD {userData?.planDetails.price}</span>
+										<span className="text-gray-800 block mt-1">BD {userData?.planDetails?.price}</span>
 									</div>
 								</div>
 								<div className="bg-gray-50 p-4 rounded-lg shadow-sm flex items-center gap-4">
 									<BsHourglassSplit className="text-green-500 mr-2" />
 									<div>
 										<span className="text-gray-600 font-medium">Plan Duration:</span>
-										<span className="text-gray-800 block mt-1">{userData?.planDetails.duration}</span>
+										<span className="text-gray-800 block mt-1">{userData?.planDetails?.duration}</span>
 									</div>
 								</div>
 								<div className="bg-gray-50 p-4 rounded-lg shadow-sm flex items-center gap-4">
@@ -218,7 +218,7 @@ const AssignPlan = () => {
 										<option value="">Choose a Plan</option>
 										{planList?.map((plan) => (
 											<option key={plan._id} value={plan._id}>
-												{plan.name} - {plan.price} BD ({plan.duration} Month{plan.duration === '1' ? "" : "s"})
+												{plan?.name} - {plan?.price} BD ({plan?.duration} Month{plan?.duration === '1' ? "" : "s"})
 											</option>
 										))}
 									</select>

@@ -184,10 +184,14 @@ const UsersTable = () => {
         </table>
       </div>
       <div className="mt-10 bg-white p-2 rounded-lg border">
-        <Pagination align="center" defaultCurrent={filterData?.page} total={filterList?.totalUsers} pageSize={filterList?.limit || 10}
+        <Pagination align="center" defaultCurrent={filterData?.page} total={filterList?.totalUsers} pageSize={filterList?.limit || 10} showQuickJumper
           onChange={(page) => {
             console.log(page);
             setFilterList((prev) => ({ ...prev, page: page }));
+          }}
+          showSizeChanger
+          onShowSizeChange={(current, size) => {
+            setFilterList((prevFilter) => ({ ...prevFilter, limit: size, page: current }));
           }}
         />
       </div>
