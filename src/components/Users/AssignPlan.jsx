@@ -4,13 +4,14 @@ import { IoMaleFemaleOutline } from "react-icons/io5";
 import moment from 'moment';
 import { FaCalendarAlt, FaCreditCard } from "react-icons/fa";
 import { RiVerifiedBadgeFill } from "react-icons/ri";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { BsHourglassSplit } from "react-icons/bs";
 import { useDispatch, useSelector } from "react-redux";
 import { assignPlan } from "../../store/features/user-slice";
 import male from '../../img/male.png'
 import female from '../../img/female.png'
 import toast from "react-hot-toast";
+import { IoIosArrowRoundBack } from "react-icons/io";
 
 const ProfileItem = ({ icon, label, value, isVerifiedEmail, isVerifiedMobile }) => {
 	const [ isHovered, setIsHovered ] = useState(false);
@@ -37,6 +38,7 @@ const ProfileItem = ({ icon, label, value, isVerifiedEmail, isVerifiedMobile }) 
 };
 
 const AssignPlan = () => {
+	const navigate = useNavigate()
 	const location = useLocation();
 	const dispatch = useDispatch()
 	const [ userData, setUserData ] = useState([]);
@@ -88,9 +90,13 @@ const AssignPlan = () => {
 			toast.error('Assigned failed.', { id: loadingToast });
 		}
 	};
+	const handelBack = () => {
+		navigate(-1);
+	}
 
 	return (
 		<>
+			<div className="w-12 bg-white rounded-full border-2 flex justify-center cursor-pointer" onClick={handelBack}><IoIosArrowRoundBack size={32} /></div>
 			<div className="max-w-5xl mx-auto bg-white shadow-md rounded-lg overflow-hidden">
 				{/* User Profile Section */}
 				<div className="px-8 py-3 bg-gradient-to-r from-gold to-red-200 flex items-center gap-8">

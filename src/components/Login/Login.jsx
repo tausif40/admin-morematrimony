@@ -23,8 +23,8 @@ const Login = () => {
 
 		try {
 			// Dispatch the loginUser async thunk and unwrap the result
-			const data = await dispatch(loginUser({ email, password })).unwrap();
-			// console.log(data);
+			const data = await dispatch(loginUser({ email: email, password: password })).unwrap();
+			console.log("res - ", data);
 			// If successful, store tokens and navigate
 			Cookies.set('access_token', data.tokens.access.token);
 			Cookies.set('refresh_token', data.tokens.refresh.token);

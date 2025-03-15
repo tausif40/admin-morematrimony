@@ -12,8 +12,8 @@ const refreshToken = Cookies.get('refresh_token');
 export const loginUser = createAsyncThunk('auth/loginUser', async (credentials, thunkAPI) => {
 	// const encryptedUserData = encryptData(credentials);{ encryptedData: encryptedUserData }
 	try {
-		const response = await apiClient.post('/auth/logIn', credentials);
-		// console.log(response);
+		const response = await apiClient.post('/admin/admin-logIn', credentials);
+		console.log(response);
 		return response.data;
 	} catch (error) {
 		console.log(error);
