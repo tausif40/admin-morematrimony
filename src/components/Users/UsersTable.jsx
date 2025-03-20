@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { IoEllipsisVertical } from "react-icons/io5";
 import { AiOutlineLogin } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
-import { getUser, loginByAdmin, setFilter } from "../../store/features/user-slice";
+import { getUser, loginByAdmin, setFilter, useStatusToggle } from "../../store/features/user-slice";
 import male from '../../img/male.png'
 import female from '../../img/female.png'
 import { Pagination, Switch } from 'antd';
@@ -13,6 +13,7 @@ const UsersTable = () => {
   const menuRef = useRef(null);
   const dispatch = useDispatch();
   const navigate = useNavigate()
+  const debounceTimer = useRef(null);
   const [ openMenu, setOpenMenu ] = useState(null);
   const [ users, setUsers ] = useState([]);
 
@@ -20,15 +21,30 @@ const UsersTable = () => {
     page: '',
     limit: '',
     totalUsers: '',
+    isActive: '',
+    planType: '',
+    search: ''
   })
 
   const usersList = useSelector((state) => state.userSlice.users);
   const filterData = useSelector((state) => state.userSlice.filter);
   const prevFilterListRef = useRef(filterList);
 
+
+  useEffect(() => {
+    dispatch(getUser(filterList));
+  }, [ dispatch ]);
+
+  useEffect(() => {
+    console.log(usersList?.data);
+    setUsers(usersList?.data?.users);
+  }, [ usersList ]);
+
+
   useEffect(() => {
     if (usersList?.data && (filterList.limit !== usersList.data.limit || filterList.page !== usersList.data.page || filterList.totalUsers !== usersList.data.totalUsers)
     ) {
+      console.log(filterData);
       setFilterList((prevFilter) => ({
         ...prevFilter,
         limit: filterData?.limit,
@@ -40,19 +56,18 @@ const UsersTable = () => {
   }, [ usersList, filterData ]);
 
   useEffect(() => {
-    if (JSON.stringify(prevFilterListRef.current) !== JSON.stringify(filterList)) {
-      dispatch(getUser(filterList));
-      prevFilterListRef.current = filterList;
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current);
     }
+    debounceTimer.current = setTimeout(() => {
+      if (JSON.stringify(prevFilterListRef.current) !== JSON.stringify(filterList)) {
+        dispatch(getUser(filterList));
+        prevFilterListRef.current = filterList;
+      }
+    }, 500);
+    return () => clearTimeout(debounceTimer.current);
   }, [ filterList, dispatch ]);
 
-  useEffect(() => {
-    dispatch(getUser(filterList));
-  }, [ dispatch ]);
-
-  useEffect(() => {
-    setUsers(usersList?.data?.users);
-  }, [ usersList ]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -89,6 +104,11 @@ const UsersTable = () => {
   const handelNavigate = (useData) => {
     navigate('/users/assign-plan', { state: useData })
   }
+  const handelUseStatusToggle = (id) => {
+    console.log("id=", id);
+    dispatch(useStatusToggle(id));
+    setOpenMenu(null)
+  }
 
   const formateDate = (formaDate) => {
     const date = new Date(formaDate);
@@ -96,8 +116,9 @@ const UsersTable = () => {
     const today = new Date();
     const timeDiff = date.getTime() - today.getTime();
     const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-
-    return { formattedDate, daysLeft };
+    let currentStatus;
+    daysLeft < 0 ? currentStatus = `Expired` : currentStatus = `${daysLeft} days left`
+    return { formattedDate, currentStatus };
   }
 
   return (
@@ -106,15 +127,18 @@ const UsersTable = () => {
         <h1 className="text-2xl font-bold text-gray-900">Users Table</h1>
       </div>
       <div className="w-full my-4 flex gap-4">
-        <input type="text" className="w-full p-2" />
-        <select name="" id="" className="p-2">
-          <option value="">Free user</option>
-          <option value="">Paid User</option>
-          <option value=""></option>
+        <input type="text" className="w-full p-2" onChange={(e) => setFilterList((prevFilter) => ({ ...prevFilter, search: e.target.value }))} />
+        <select name="" id="" className="w-52 p-2"
+          value={filterList.planType}
+          onChange={(e) => setFilterList((prev) => ({ ...prev, planType: e.target.value }))
+          }>
+          <option value="">All Users</option>
+          <option value="free">Free User</option>
+          <option value="premium">Paid User</option>
         </select>
       </div>
-      <div className="overflow-x-auto bg-white shadow-md rounded-lg p-2">
-        <table className="min-w-full  ">
+      <div className="overflow-x-auto overflow-y-visible bg-white shadow-md rounded-lg p-2">
+        <table className="min-w-full">
           <thead>
             <tr className="bg-slate-200 text-left text-gray-700">
               <th className="p-4 text-center">USER</th>
@@ -146,13 +170,13 @@ const UsersTable = () => {
                 <td className="p-4 text-gray-600 capitalize">{user.gender}</td>
 
                 <td className="p-4 text-gray-600 text-center">
-                  <p className="min-w-max text-sm text-red-600">{user.planExpiry ? `${formateDate(user.planExpiry)?.daysLeft} days left` : ''}</p>
+                  <p className={`min-w-max text-sm ${formateDate(user.planExpiry)?.currentStatus === 'Expired' ? 'text-red-600' : 'text-green-600'}`}>{user.planExpiry ? `${formateDate(user.planExpiry)?.currentStatus}` : ''}</p>
                   <p className="min-w-max">{user.planExpiry ? formateDate(user.planExpiry)?.formattedDate : '-'}</p>
                 </td>
                 <td className="p-4 text-gray-600 text-center"><p className="min-w-max">{formateDate(user.createdAt)?.formattedDate}</p></td>
                 <td className="p-4 text-center">
-                  <span className="px-3 py-1 text-sm text-green-700 bg-green-100 rounded-full">
-                    {user.__v === 0 ? 'Active' : 'Inactive'}
+                  <span className={`px-3 py-1 text-sm  rounded-full ${user?.isActive ? 'text-green-700 bg-green-100' : 'text-red-700 bg-red-100'}`}>
+                    {user?.isActive ? 'Active' : 'Inactive'}
                   </span>
                   {/* <Switch defaultChecked onChange={onChange} /> */}
                 </td>
@@ -170,11 +194,11 @@ const UsersTable = () => {
                   {openMenu === user._id && (
                     <div
                       ref={menuRef}
-                      className="absolute right-12 mt-2 w-40 bg-white border rounded-lg shadow-md z-20"
+                      className="absolute overflow-visible right-12 mt-2 w-40 bg-white border rounded-lg shadow-md z-50"
                     >
                       <button className="block w-full text-left px-4 py-2 hover:bg-gray-100" onClick={() => handelNavigate(user)}>View</button>
                       {/* <button className="block w-full text-left px-4 py-2 hover:bg-gray-100">Assign Plan</button> */}
-                      <button className="block w-full text-left px-4 py-2 hover:bg-gray-100">Inactive</button>
+                      <button className="block w-full text-left px-4 py-2 hover:bg-gray-100" onClick={() => handelUseStatusToggle(user._id)}>{user?.isActive ? 'Inactive' : 'Active'}</button>
                     </div>
                   )}
                 </td>
@@ -186,7 +210,6 @@ const UsersTable = () => {
       <div className="mt-10 bg-white p-2 rounded-lg border">
         <Pagination align="center" defaultCurrent={filterData?.page} total={filterList?.totalUsers} pageSize={filterList?.limit || 10} showQuickJumper
           onChange={(page) => {
-            console.log(page);
             setFilterList((prev) => ({ ...prev, page: page }));
           }}
           showSizeChanger

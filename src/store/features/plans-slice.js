@@ -31,11 +31,21 @@ export const getActivePlan = createAsyncThunk('plan/getActivePlan', async (_, { 
 		return rejectWithValue(error.response?.data || 'Failed to fetch active plan');
 	}
 });
+export const getUserActivePlan = createAsyncThunk('user/getUserActivePlan', async (id, { rejectWithValue }) => {
+	try {
+		const response = await apiClient.get(`/admin/agent/${id}`);
+		return response.data;
+	} catch (error) {
+		console.log(error);
+		return rejectWithValue(error.response?.data || 'Failed get user active plan');
+	}
+});
 
 const plansSlice = createSlice({
 	name: 'plan',
 	initialState: {
 		plans: { data: [], loading: false, error: null, },
+		userActivePlan: { data: [], loading: false, error: null, },
 		addPlans: { data: [], loading: false, error: null, },
 		activePlan: { data: [], loading: false, error: null, },
 	},
@@ -54,6 +64,20 @@ const plansSlice = createSlice({
 				state.plans.loading = false;
 				state.plans.error = action.payload || action.error.message;
 			})
+			// user Active Plan
+			.addCase(getUserActivePlan.pending, (state) => {
+				state.userActivePlan.loading = true
+				state.userActivePlan.error = true
+			})
+			.addCase(getUserActivePlan.fulfilled, (state, action) => {
+				state.userActivePlan.data = action.payload;
+				state.userActivePlan.loading = false;
+			})
+			.addCase(getUserActivePlan.rejected, (state, action) => {
+				state.userActivePlan.loading = false;
+				state.userActivePlan.error = action.payload || action.error.message;
+			})
+
 			.addCase(addPlan.pending, (state) => {
 				state.addPlans.loading = true
 				state.addPlans.error = true

@@ -39,7 +39,7 @@ function AddPlan({ editingPlan }) {
 				price: editingPlan.price || "",
 				duration: editingPlan.duration || "",
 				profileLimit: editingPlan.profileLimit || "",
-				userDescription: editingPlan.userDescription || "",
+				userDescription: Array.isArray(editingPlan.userDescription) ? editingPlan.userDescription.join(" | ") : editingPlan.userDescription || "",
 				adminDescription: editingPlan.adminDescription || "",
 				// isPopular: editingPlan.isPopular || false,
 			});
@@ -107,7 +107,7 @@ function AddPlan({ editingPlan }) {
 				</div>
 				<div className="grid grid-cols-3 gap-4">
 					<div>
-						<label className="block text-sm font-medium text-gray-700">Price ($)</label>
+						<label className="block text-sm font-medium text-gray-700">Price (BD)</label>
 						<input type="number" name="price" value={formData.price} onChange={handleChange} required min="0" step="0.01" className="input" />
 					</div>
 					<div>
@@ -120,8 +120,8 @@ function AddPlan({ editingPlan }) {
 					</div>
 				</div>
 				<div>
-					<label className="block text-sm font-medium text-gray-700">User Description</label>
-					<textarea name="userDescription" value={formData.userDescription} onChange={handleChange} required rows={2} className="input" />
+					<label className="block text-sm font-medium text-gray-700">User Description (Separate with | )</label>
+					<textarea name="userDescription" value={formData.userDescription} onChange={handleChange} required rows={3} className="input" />
 				</div>
 				<div>
 					<label className="block text-sm font-medium text-gray-700">Admin Description</label>

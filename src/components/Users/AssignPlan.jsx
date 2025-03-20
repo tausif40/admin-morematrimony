@@ -12,6 +12,7 @@ import male from '../../img/male.png'
 import female from '../../img/female.png'
 import toast from "react-hot-toast";
 import { IoIosArrowRoundBack } from "react-icons/io";
+import { getUserActivePlan } from "../../store/features/plans-slice";
 
 const ProfileItem = ({ icon, label, value, isVerifiedEmail, isVerifiedMobile }) => {
 	const [ isHovered, setIsHovered ] = useState(false);
@@ -50,22 +51,19 @@ const AssignPlan = () => {
 	const [ error, setError ] = useState(false);
 	const [ selectedPlan, setSelectedPlan ] = useState("");
 
-	// useEffect(() => {
-	// 	window.scrollTo(0, 0);
-	// 	console.log(window.scrollTo(0, 0));
-	// }, [ location.pathname ]);
-
-	const activePlanList = useSelector((state) => state.planSlice.activePlan);
 	useEffect(() => {
-		console.log(activePlanList?.data?.plans);
-		setPlanList(activePlanList?.data?.plans)
-	}, [ activePlanList ])
-
-	useEffect(() => {
-		setUserData(location?.state)
 		setUserId(location?.state?._id)
+		dispatch(getUserActivePlan(location?.state?._id))
 	}, [ location ])
 
+	const activePlanList = useSelector((state) => state.planSlice.activePlan);
+	const userActivePlan = useSelector((state) => state.planSlice.userActivePlan);
+	console.log(userActivePlan?.data?.agent);
+
+	useEffect(() => {
+		setUserData(userActivePlan?.data?.agent)
+		setPlanList(activePlanList?.data?.plans)
+	}, [ activePlanList, userActivePlan ])
 
 	const handleAssignPlan = async () => {
 		if (selectedPlan === '') {
@@ -82,6 +80,7 @@ const AssignPlan = () => {
 			setIsLoading(false)
 			setSuccessAssign(true)
 			setError(false)
+			dispatch(getUserActivePlan(userId))
 			toast.success('Assigned successfully', { id: loadingToast });
 		} catch (err) {
 			console.log(err);
@@ -94,9 +93,10 @@ const AssignPlan = () => {
 		navigate(-1);
 	}
 
+
 	return (
 		<>
-			<div className="w-12 bg-white rounded-full border-2 flex justify-center cursor-pointer" onClick={handelBack}><IoIosArrowRoundBack size={32} /></div>
+			<div className="w-12 bg-white rounded-full border-2 flex justify-center cursor-pointer mb-2 lg:mb-0" onClick={handelBack}><IoIosArrowRoundBack size={32} /></div>
 			<div className="max-w-5xl mx-auto bg-white shadow-md rounded-lg overflow-hidden">
 				{/* User Profile Section */}
 				<div className="px-8 py-3 bg-gradient-to-r from-gold to-red-200 flex items-center gap-8">
@@ -153,81 +153,84 @@ const AssignPlan = () => {
 				</div>
 			</div>
 
-			<div className="max-w-5xl mx-auto mt-6 bg-white shadow-md rounded-lg overflow-hidden">
+			<div className="max-w-5xl mx-auto mt-6 bg-gray flex flex-col gap-8">
 				{/* Plan Details or Assign Plan Section */}
-				{userData?.plan ? (
-					<div className="p-8 bg-gradient-to-r from-green-500 to-green-400">
-						<h2 className="text-2xl font-bold text-white mb-4 flex items-center">
-							<FaCreditCard className="mr-2" /> Plan Details
-						</h2>
-					</div>
+				{/* {userData?.plan ? (
+					
 				) : (
+					
+				)} */}
+				<div className="bg-white shadow-md rounded-lg overflow-hidden">
+					{userData?.plan && (
+						<div className="">
+							{/* // Plan Details */}
+							<div className="p-8 bg-gradient-to-r from-green-500 to-green-400">
+								<h2 className="text-2xl font-bold text-white mb-4 flex items-center">
+									<FaCreditCard className="mr-2" /> Active Plan Details
+								</h2>
+							</div>
+							<div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+								<div className="bg-gray-100 p-4 rounded-lg shadow-sm flex items-center gap-4">
+									<FaCreditCard className="text-green-500 mr-2" />
+									<div>
+										<span className="text-gray-600 font-medium">Plan Name:</span>
+										<span className="text-gray-800 block mt-1">{userData?.plan?.name}</span>
+									</div>
+								</div>
+								<div className="bg-gray-100 p-4 rounded-lg shadow-sm flex items-center gap-4">
+									<DollarSign className="text-green-500 mr-2" />
+									<div>
+										<span className="text-gray-600 font-medium">Plan Price:</span>
+										<span className="text-gray-800 block mt-1">BD {userData?.plan?.price}</span>
+									</div>
+								</div>
+								<div className="bg-gray-100 p-4 rounded-lg shadow-sm flex items-center gap-4">
+									<BsHourglassSplit className="text-green-500 mr-2" />
+									<div>
+										<span className="text-gray-600 font-medium">Plan Duration:</span>
+										<span className="text-gray-800 block mt-1">{userData?.plan?.duration} {userData.plan.duration === '1' ? 'Month' : 'Months'}</span>
+									</div>
+								</div>
+								<div className="bg-gray-100 p-4 rounded-lg shadow-sm flex items-center gap-4">
+									<FaCalendarAlt className="text-green-500 mr-2" />
+									<div>
+										<span className="text-gray-600 font-medium">Plan Expiry:</span>
+										<span className="text-gray-800 block mt-1">
+											{moment(userData?.planExpiry).format('DD MMM YYYY')}
+										</span>
+									</div>
+								</div>
+							</div>
+						</div>
+					)}
+				</div>
+
+				{/* // Assign Plan Section */}
+				<div className="bg-white shadow-md rounded-lg overflow-hidden">
 					<div className="p-8 bg-gradient-to-r from-red-500 to-red-400">
 						<h2 className="text-2xl font-bold text-white mb-4 flex items-center">
 							<FaCreditCard className="mr-2" /> Assign Plan
 						</h2>
 					</div>
-				)}
-				<div className="p-8">
-					<div className="space-y-6">
-						{userData?.plan ? (
-							// Plan Details
-							<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-								<div className="bg-gray-50 p-4 rounded-lg shadow-sm flex items-center gap-4">
-									<FaCreditCard className="text-green-500 mr-2" />
-									<div>
-										<span className="text-gray-600 font-medium">Plan Name:</span>
-										<span className="text-gray-800 block mt-1">{userData?.planDetails?.name}</span>
-									</div>
-								</div>
-								<div className="bg-gray-50 p-4 rounded-lg shadow-sm flex items-center gap-4">
-									<DollarSign className="text-green-500 mr-2" />
-									<div>
-										<span className="text-gray-600 font-medium">Plan Price:</span>
-										<span className="text-gray-800 block mt-1">BD {userData?.planDetails?.price}</span>
-									</div>
-								</div>
-								<div className="bg-gray-50 p-4 rounded-lg shadow-sm flex items-center gap-4">
-									<BsHourglassSplit className="text-green-500 mr-2" />
-									<div>
-										<span className="text-gray-600 font-medium">Plan Duration:</span>
-										<span className="text-gray-800 block mt-1">{userData?.planDetails?.duration}</span>
-									</div>
-								</div>
-								<div className="bg-gray-50 p-4 rounded-lg shadow-sm flex items-center gap-4">
-									<FaCalendarAlt className="text-green-500 mr-2" />
-									<div>
-										<span className="text-gray-600 font-medium">Plan Expiry:</span>
-										<span className="text-gray-800 block mt-1">
-											{new Date(userData?.planExpiry).toLocaleDateString()}
-										</span>
-									</div>
-								</div>
-							</div>
-						) : (
-							// Assign Plan Section
-							<div className="flex flex-col space-y-4">
-
-								<div className="w-full">
-									<label className="block text-sm font-medium text-gray-700">Select a Plan</label>
-									<select
-										className="w-full mt-3 mb-4 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-										value={selectedPlan}
-										onChange={(e) => setSelectedPlan(e.target.value)}
-									>
-										<option value="">Choose a Plan</option>
-										{planList?.map((plan) => (
-											<option key={plan._id} value={plan._id}>
-												{plan?.name} - {plan?.price} BD ({plan?.duration} Month{plan?.duration === '1' ? "" : "s"})
-											</option>
-										))}
-									</select>
-								</div>
-								<button onClick={handleAssignPlan} className={`${isLoading ? 'bg-yellow-300' : successAssign ? 'bg-emerald-400' : error ? 'bg-red-400 hover:bg-yellow-500' : 'bg-yellow-400 hover:bg-yellow-500'}  text-gray-800 px-6 py-3 rounded-md font-semibold transition duration-300 shadow-lg`} disabled={isLoading}>
-									{isLoading ? 'Assigning...' : error ? 'Assign failed! Try Again' : successAssign ? 'Assigned successfully' : 'Assign Plan'}
-								</button>
-							</div>
-						)}
+					<div className="p-8 flex flex-col space-y-4 ">
+						<div className="w-full">
+							<label className="block text-sm font-medium text-gray-700">Select a Plan</label>
+							<select
+								className="w-full mt-3 mb-4 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+								value={selectedPlan}
+								onChange={(e) => setSelectedPlan(e.target.value)}
+							>
+								<option value="">Choose a Plan</option>
+								{planList?.map((plan) => (
+									<option key={plan._id} value={plan._id}>
+										{plan?.name} - {plan?.price} BD ({plan?.duration} Month{plan?.duration === '1' ? "" : "s"})
+									</option>
+								))}
+							</select>
+						</div>
+						<button onClick={handleAssignPlan} className={`${isLoading ? 'bg-yellow-300' : successAssign ? 'bg-emerald-400' : error ? 'bg-red-400 hover:bg-yellow-500' : 'bg-yellow-400 hover:bg-yellow-500'}  text-gray-800 px-6 py-3 rounded-md font-semibold transition duration-300 shadow-lg`} disabled={isLoading}>
+							{isLoading ? 'Assigning...' : error ? 'Assign failed! Try Again' : successAssign ? 'Assigned successfully' : 'Assign Plan'}
+						</button>
 					</div>
 				</div>
 			</div >

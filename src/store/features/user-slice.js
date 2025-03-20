@@ -32,6 +32,18 @@ export const assignPlan = createAsyncThunk('user/assignPlan', async (data, { rej
 		return rejectWithValue(error.response?.data || 'Failed assign plan');
 	}
 });
+export const useStatusToggle = createAsyncThunk('user/useStatusToggle', async (id, { dispatch, getState, rejectWithValue }) => {
+	try {
+		const response = await apiClient.get(`/admin/agent/active/${id}`);
+		console.log(response.data);
+		const filter = getState().userSlice.filter;
+		dispatch(getUser(filter));
+		return response.data;
+	} catch (error) {
+		console.log(error);
+		return rejectWithValue(error.response?.data || 'Failed assign plan');
+	}
+});
 
 const userSlice = createSlice({
 	name: 'user',
@@ -39,7 +51,7 @@ const userSlice = createSlice({
 		users: { data: [], loading: false, error: null, },
 		adminLogin: { data: [], loading: false, error: null, },
 		assignedPlan: { data: [], loading: false, error: null, },
-		filter: { page: '', limit: '', totalUsers: '', }
+		filter: { page: '', limit: '', totalUsers: '', isActive: '', planType: '', search: '' },
 	},
 	reducers: {
 		setFilter(state, action) {
