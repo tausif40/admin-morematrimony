@@ -3,15 +3,17 @@ import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, LayoutDashboard, Users, Crown, LogOut, ChevronDown, User as UserIcon } from 'lucide-react';
 import { Menu as HeadlessMenu } from '@headlessui/react';
 import toast from 'react-hot-toast';
+import { FaMoneyCheckAlt } from "react-icons/fa";
 
 const menuItems = [
   { icon: LayoutDashboard, name: 'Dashboard', path: '/dashboard' },
   { icon: Users, name: 'Users', path: '/users' },
   { icon: Crown, name: 'Plans', path: '/plans' },
+  { icon: FaMoneyCheckAlt, name: 'TransactionData', path: '/transactions' },
 ];
 
-export default function Layout({ children }: { children: React.ReactNode }) {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+export default function Layout() {
+  const [ isCollapsed, setIsCollapsed ] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 

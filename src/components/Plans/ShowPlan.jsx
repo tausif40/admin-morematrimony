@@ -91,19 +91,19 @@ function ShowPlan({ plan, editingPlan, isOpen }) {
 			<div className="px-4 pb-4">
 				<div className="mx-auto">
 					<div className='flex justify-end'>
-						<div className="flex p-1 max-w-min bg-gray-300 rounded-full mb-6">
+						<div className="flex p-1 max-w-min bg-gray-200 rounded-full mb-6">
 							<button
-								className={`px-10 py-2 rounded-full text-sm font-medium ${activeTab === "all" ? "bg-blue-500 text-white" : "text-gray-600"} min-w-max`}
+								className={`px-10 py-2 rounded-full text-sm font-medium ${activeTab === "all" ? "bg-blue-500 text-white" : "text-gray-500"} min-w-max`}
 								onClick={() => setActiveTab("all")}>
 								All
 							</button>
 							<button
-								className={`px-10 py-2 rounded-full text-sm font-medium ${activeTab === "active" ? "bg-emerald-500 text-white" : "text-gray-600"} min-w-max`}
+								className={`px-10 py-2 rounded-full text-sm font-medium ${activeTab === "active" ? "bg-emerald-500 text-white" : "text-gray-500"} min-w-max`}
 								onClick={() => setActiveTab("active")}>
 								Active
 							</button>
 							<button
-								className={`px-10 py-2 rounded-full text-sm font-medium ${activeTab === "inactive" ? "bg-red-500 text-white" : "text-gray-600"} min-w-max`}
+								className={`px-10 py-2 rounded-full text-sm font-medium ${activeTab === "inactive" ? "bg-red-500 text-white" : "text-gray-500"} min-w-max`}
 								onClick={() => setActiveTab("inactive")}>
 								Inactive
 							</button>

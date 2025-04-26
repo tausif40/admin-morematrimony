@@ -1,6 +1,5 @@
-import React from 'react';
 import { Users, Crown, DollarSign, TrendingUp, Activity, UserPlus, Calendar, CreditCard } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 
 const stats = [
   {
