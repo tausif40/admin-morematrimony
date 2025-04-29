@@ -13,6 +13,7 @@ import female from '../../img/female.png'
 import toast from "react-hot-toast";
 import { getUserActivePlan } from "../../store/features/plans-slice";
 import ProfileItem from "../ui/ProfileItem";
+import { formateDate } from "../../utils/utils";
 
 const AssignPlan = () => {
 	const navigate = useNavigate()
@@ -21,6 +22,7 @@ const AssignPlan = () => {
 	const [ userData, setUserData ] = useState([]);
 	const [ planList, setPlanList ] = useState([]);
 	const [ userId, setUserId ] = useState();
+	const { currentStatus } = formateDate(userData?.planExpiry);
 	// const [ currentPlanStatus, setCurrentPlanStatus ] = useState();
 	const [ profileImg, setProfileImg ] = useState();
 
@@ -41,19 +43,6 @@ const AssignPlan = () => {
 	const handelBack = () => {
 		navigate(-1);
 	}
-
-	const formateDate = (formaDate) => {
-		const date = new Date(formaDate);
-		const formattedDate = `${date.getDate().toString().padStart(2, "0")}-${(date.getMonth() + 1).toString().padStart(2, "0")}-${date.getFullYear()}`;
-		const today = new Date();
-		const timeDiff = date.getTime() - today.getTime();
-		const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-		let currentStatus;
-		daysLeft < 0 ? currentStatus = `Expired` : currentStatus = `${daysLeft} days left`
-		return { formattedDate, currentStatus };
-	}
-
-
 
 	return (
 		<>
@@ -120,36 +109,36 @@ const AssignPlan = () => {
 					{userData?.plan && (
 						<div className="">
 							{/* // Plan Details */}
-							<div className={`p-8 ${formateDate(userData.planExpiry)?.currentStatus === 'Expired' ? 'bg-red-200' : 'bg-green-600'}`}>
-								<h2 className={`text-2xl font-bold mb-4 flex items-center ${formateDate(userData?.planExpiry)?.currentStatus === 'Expired' ? 'text-red-600' : 'text-green-600'}`}>
+							<div className={`p-8 ${currentStatus === 'Expired' ? 'bg-red-200' : 'bg-green-500'}`}>
+								<h2 className={`text-2xl font-bold mb-4 flex items-center ${currentStatus === 'Expired' ? 'text-gray-600' : 'text-white'}`}>
 
-									<FaCreditCard className="mr-2 text-gray-600" /> <span className="text-gray-600"> Active Plan Details&nbsp; </span> {formateDate(userData?.planExpiry)?.currentStatus === 'Expired' && "(Expired)"}
+									<FaCreditCard className="mr-2" /> Active Plan Details&nbsp; <span className="text-red-500">{currentStatus === 'Expired' && "(Expired)"}</span>
 								</h2>
 							</div>
 							<div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
 								<div className="bg-gray-100 p-4 rounded-lg shadow-sm flex items-center gap-4">
-									<FaCreditCard className={`mr-2 ${formateDate(userData?.planExpiry)?.currentStatus === 'Expired' ? 'text-gray-600' : 'text-green-500'}`} />
+									<FaCreditCard className={`mr-2 ${currentStatus === 'Expired' ? 'text-gray-600' : 'text-green-500'}`} />
 									<div>
 										<span className="text-gray-600 font-medium">Plan Name:</span>
 										<span className="text-gray-800 block mt-1">{userData?.plan?.name}</span>
 									</div>
 								</div>
 								<div className="bg-gray-100 p-4 rounded-lg shadow-sm flex items-center gap-4">
-									<DollarSign className={`mr-2 ${formateDate(userData?.planExpiry)?.currentStatus === 'Expired' ? 'text-gray-600' : 'text-green-500'}`} />
+									<DollarSign className={`mr-2 ${currentStatus === 'Expired' ? 'text-gray-600' : 'text-green-500'}`} />
 									<div>
 										<span className="text-gray-600 font-medium">Plan Price:</span>
 										<span className="text-gray-800 block mt-1">BD {userData?.plan?.price}</span>
 									</div>
 								</div>
 								<div className="bg-gray-100 p-4 rounded-lg shadow-sm flex items-center gap-4">
-									<BsHourglassSplit className={`mr-2 ${formateDate(userData?.planExpiry)?.currentStatus === 'Expired' ? 'text-gray-600' : 'text-green-500'}`} />
+									<BsHourglassSplit className={`mr-2 ${currentStatus === 'Expired' ? 'text-gray-600' : 'text-green-500'}`} />
 									<div>
 										<span className="text-gray-600 font-medium">Plan Duration:</span>
 										<span className="text-gray-800 block mt-1">{userData?.plan?.duration} {userData.plan.duration === '1' ? 'Month' : 'Months'}</span>
 									</div>
 								</div>
 								<div className="bg-gray-100 p-4 rounded-lg shadow-sm flex items-center gap-4">
-									<FaCalendarAlt className={`mr-2 ${formateDate(userData?.planExpiry)?.currentStatus === 'Expired' ? 'text-gray-600' : 'text-green-500'}`} />
+									<FaCalendarAlt className={`mr-2 ${currentStatus === 'Expired' ? 'text-gray-600' : 'text-green-500'}`} />
 									<div>
 										<span className="text-gray-600 font-medium">Plan Expiry:</span>
 										<span className="text-gray-800 block mt-1">

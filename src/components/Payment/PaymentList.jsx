@@ -74,17 +74,17 @@ function PaymentList() {
 			</div>
 			<div className="bg-white rounded-xl shadow-sm p-6 relative hover:shadow-md transition-shadow mt-8">
 				<div className='flex justify-end'>
-					<div className="grid grid-cols-2 sm:grid-cols-4 p-1 bg-gray-200 rounded-3xl sm:rounded-full mb-6">
+					<div className="grid grid-cols-2 sm:grid-cols-3 p-1 bg-gray-200 rounded-3xl sm:rounded-full mb-6">
 						<button
 							className={`px-10 py-2 rounded-full text-sm font-medium ${activeTab === "pending" ? "bg-orange-500 text-white" : "text-gray-500"} min-w-max`}
 							onClick={() => { setActiveTab("pending"); setFilterList((prev) => ({ ...prev, statusByAdmin: 'pending' })) }}>
 							Pending
 						</button>
-						<button
+						{/* <button
 							className={`px-10 py-2 rounded-full text-sm font-medium ${activeTab === "all" ? "bg-blue-500 text-white" : "text-gray-500"} min-w-max`}
 							onClick={() => { setActiveTab("all"); setFilterList((prev) => ({ ...prev, statusByAdmin: '' })) }}>
 							All
-						</button>
+						</button> */}
 						<button
 							className={`px-10 py-2 rounded-full text-sm font-medium ${activeTab === "approved" ? "bg-emerald-500 text-white" : "text-gray-500"} min-w-max`}
 							onClick={() => { setActiveTab("approved"); setFilterList((prev) => ({ ...prev, statusByAdmin: 'approved' })) }}>

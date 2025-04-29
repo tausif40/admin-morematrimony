@@ -8,6 +8,7 @@ import female from '../../img/female.png'
 import { Pagination, Switch } from 'antd';
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { formateDate } from "../../utils/utils";
 
 const UsersTable = () => {
   const menuRef = useRef(null);
@@ -108,17 +109,6 @@ const UsersTable = () => {
     console.log("id=", id);
     dispatch(useStatusToggle(id));
     setOpenMenu(null)
-  }
-
-  const formateDate = (formaDate) => {
-    const date = new Date(formaDate);
-    const formattedDate = `${date.getDate().toString().padStart(2, "0")}-${(date.getMonth() + 1).toString().padStart(2, "0")}-${date.getFullYear()}`;
-    const today = new Date();
-    const timeDiff = date.getTime() - today.getTime();
-    const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-    let currentStatus;
-    daysLeft < 0 ? currentStatus = `Expired` : currentStatus = `${daysLeft} days left`
-    return { formattedDate, currentStatus };
   }
 
   return (
