@@ -5,9 +5,9 @@ import { getQueryParams } from '../../utils/queryParams';
 export const getTransaction = createAsyncThunk('transaction/getTransaction', async (data, { rejectWithValue }) => {
 	try {
 		const filterData = getQueryParams(data)
-		console.log(`/transaction?${filterData}`);
+		// console.log(`/transaction?${filterData}`);
 		const response = await apiClient.get(`/transaction?${filterData}`);
-		console.log(response);
+		// console.log(response);
 		return response.data;
 	} catch (error) {
 		console.log(error);
@@ -19,8 +19,17 @@ const transaction = createSlice({
 	name: 'transaction',
 	initialState: {
 		transaction: { data: [], loading: false, error: null, },
+		filter: { page: 1, limit: '', totalUsers: '', statusByAdmin: '' }
 	},
-	reducers: {},
+	reducers: {
+		setFilter(state, action) {
+			state.filter.limit = action.payload.limit;
+			state.filter.page = action.payload.page;
+			state.filter.totalUsers = action.payload.totalUsers;
+			state.filter.statusByAdmin = action.payload.statusByAdmin;
+			// console.log("filter update")
+		}
+	},
 	extraReducers: (builder) => {
 		builder
 			.addCase(getTransaction.pending, (state) => {
@@ -38,4 +47,5 @@ const transaction = createSlice({
 	}
 });
 
+export const { setFilter } = transaction.actions;
 export default transaction.reducer;

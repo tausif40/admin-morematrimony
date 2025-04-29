@@ -9,7 +9,7 @@ const menuItems = [
   { icon: LayoutDashboard, name: 'Dashboard', path: '/dashboard' },
   { icon: Users, name: 'Users', path: '/users' },
   { icon: Crown, name: 'Plans', path: '/plans' },
-  { icon: FaMoneyCheckAlt, name: 'TransactionData', path: '/transactions' },
+  { icon: FaMoneyCheckAlt, name: 'TransactionData', path: '/payment' },
 ];
 
 export default function Layout() {
@@ -35,7 +35,7 @@ export default function Layout() {
           </button>
         </div>
 
-        <nav className="mt-8">
+        <nav className="mt-4">
           {menuItems.map((item) => (
             <Link key={item.path} to={item.path}
               className={`flex items-center px-4 py-3 ${location.pathname.startsWith(item.path) ? 'bg-gray-800 text-white' : 'hover:bg-gray-300'}`}

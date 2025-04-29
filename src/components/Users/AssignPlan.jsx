@@ -3,40 +3,16 @@ import { UserCircle, Mail, Phone, Cake, CalendarDays, DollarSign } from 'lucide-
 import { IoMaleFemaleOutline } from "react-icons/io5";
 import moment from 'moment';
 import { FaCalendarAlt, FaCreditCard } from "react-icons/fa";
-import { RiVerifiedBadgeFill } from "react-icons/ri";
-import { useLocation, useNavigate } from "react-router-dom";
 import { BsHourglassSplit } from "react-icons/bs";
+import { IoIosArrowRoundBack } from "react-icons/io";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { assignPlan } from "../../store/features/user-slice";
 import male from '../../img/male.png'
 import female from '../../img/female.png'
 import toast from "react-hot-toast";
-import { IoIosArrowRoundBack } from "react-icons/io";
 import { getUserActivePlan } from "../../store/features/plans-slice";
-
-const ProfileItem = ({ icon, label, value, isVerifiedEmail, isVerifiedMobile }) => {
-	const [ isHovered, setIsHovered ] = useState(false);
-
-	return (
-		<div
-			className="flex items-center bg-gray-100 p-4 rounded-lg transition-all duration-300 hover:shadow-md relative"
-			onMouseEnter={() => setIsHovered(true)}
-			onMouseLeave={() => setIsHovered(false)}
-		>
-			<div className="mr-4 text-gray-500">{icon}</div>
-			<div className="flex-grow">
-				<div className="flex items-center gap-2">
-					<p className="text-sm text-gray-500">{label || '_'}</p>
-					<span className="flex items-center">
-						{isVerifiedEmail && <p className='flex items-center gap-1 text-green-600'><RiVerifiedBadgeFill color="#00c951" /> <p className="text-xs mb-[2px]">verified</p></p>}
-						{isVerifiedMobile && <p className='flex items-center gap-1 text-green-600'><RiVerifiedBadgeFill color="#00c951" /> <p className="text-xs mb-[2px]">verified</p></p>}
-					</span>
-				</div>
-				<p className="font-medium text-gray-800">{value || '_'}</p>
-			</div>
-		</div>
-	);
-};
+import ProfileItem from "../ui/ProfileItem";
 
 const AssignPlan = () => {
 	const navigate = useNavigate()
@@ -45,53 +21,38 @@ const AssignPlan = () => {
 	const [ userData, setUserData ] = useState([]);
 	const [ planList, setPlanList ] = useState([]);
 	const [ userId, setUserId ] = useState();
-	const [ planId, setPlanId ] = useState("");
-	const [ isLoading, setIsLoading ] = useState(false);
-	const [ successAssign, setSuccessAssign ] = useState(false);
-	const [ error, setError ] = useState(false);
-	const [ selectedPlan, setSelectedPlan ] = useState("");
+	// const [ currentPlanStatus, setCurrentPlanStatus ] = useState();
+	const [ profileImg, setProfileImg ] = useState();
 
 	useEffect(() => {
 		setUserId(location?.state?._id)
 		dispatch(getUserActivePlan(location?.state?._id))
+		setProfileImg(location?.state?.userDetails[ 0 ]?.profileImage)
 	}, [ location ])
 
 	const activePlanList = useSelector((state) => state.planSlice.activePlan);
 	const userActivePlan = useSelector((state) => state.planSlice.userActivePlan);
-	console.log(userActivePlan?.data?.agent);
+	// console.log(userActivePlan?.data?.agent);
 
 	useEffect(() => {
 		setUserData(userActivePlan?.data?.agent)
-		setPlanList(activePlanList?.data?.plans)
 	}, [ activePlanList, userActivePlan ])
 
-	const handleAssignPlan = async () => {
-		if (selectedPlan === '') {
-			toast.error('Please Select PLan');
-			return;
-		}
-		const loadingToast = toast.loading('Assigning...');
-		try {
-			setIsLoading(true)
-			const data = { userId: userId, planId: selectedPlan }
-			console.log("Assigning plan:", data);
-			const res = await dispatch(assignPlan(data)).unwrap();
-			console.log(res);
-			setIsLoading(false)
-			setSuccessAssign(true)
-			setError(false)
-			dispatch(getUserActivePlan(userId))
-			toast.success('Assigned successfully', { id: loadingToast });
-		} catch (err) {
-			console.log(err);
-			setIsLoading(false)
-			setError(true)
-			toast.error('Assigned failed.', { id: loadingToast });
-		}
-	};
 	const handelBack = () => {
 		navigate(-1);
 	}
+
+	const formateDate = (formaDate) => {
+		const date = new Date(formaDate);
+		const formattedDate = `${date.getDate().toString().padStart(2, "0")}-${(date.getMonth() + 1).toString().padStart(2, "0")}-${date.getFullYear()}`;
+		const today = new Date();
+		const timeDiff = date.getTime() - today.getTime();
+		const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+		let currentStatus;
+		daysLeft < 0 ? currentStatus = `Expired` : currentStatus = `${daysLeft} days left`
+		return { formattedDate, currentStatus };
+	}
+
 
 
 	return (
@@ -100,11 +61,10 @@ const AssignPlan = () => {
 			<div className="max-w-5xl mx-auto bg-white shadow-md rounded-lg overflow-hidden">
 				{/* User Profile Section */}
 				<div className="px-8 py-3 bg-gradient-to-r from-gold to-red-200 flex items-center gap-8">
-					{userData?.userDetails && <>
-						{userData?.userDetails[ 0 ]?.profileImage
-							? <img src={userData?.userDetails[ 0 ]?.profileImage} alt="img" className="w-32 h-32 rounded-full object-cover bg-white" />
-							: <img src={userData?.gender === 'male' ? male : female} alt="img" className="w-32 h-32 bg-white rounded-full object-cover" />}
-					</>}
+					{profileImg ?
+						<img src={profileImg} alt="img" className="w-32 h-32 rounded-full object-cover bg-white" />
+						: <img src={userData?.gender === 'male' ? male : female} alt="img" className="w-32 h-32 bg-white rounded-full object-cover" />
+					}
 					<div>
 						<h1 className="text-4xl font-bold text-gray-800 capitalize">
 							{`${userData?.firstName || ''} ${userData?.lastName || ''}`}
@@ -155,48 +115,46 @@ const AssignPlan = () => {
 
 			<div className="max-w-5xl mx-auto mt-6 bg-gray flex flex-col gap-8">
 				{/* Plan Details or Assign Plan Section */}
-				{/* {userData?.plan ? (
-					
-				) : (
-					
-				)} */}
+
 				<div className="bg-white shadow-md rounded-lg overflow-hidden">
 					{userData?.plan && (
 						<div className="">
 							{/* // Plan Details */}
-							<div className="p-8 bg-gradient-to-r from-green-500 to-green-400">
-								<h2 className="text-2xl font-bold text-white mb-4 flex items-center">
-									<FaCreditCard className="mr-2" /> Active Plan Details
+							<div className={`p-8 ${formateDate(userData.planExpiry)?.currentStatus === 'Expired' ? 'bg-red-200' : 'bg-green-600'}`}>
+								<h2 className={`text-2xl font-bold mb-4 flex items-center ${formateDate(userData?.planExpiry)?.currentStatus === 'Expired' ? 'text-red-600' : 'text-green-600'}`}>
+
+									<FaCreditCard className="mr-2 text-gray-600" /> <span className="text-gray-600"> Active Plan Details&nbsp; </span> {formateDate(userData?.planExpiry)?.currentStatus === 'Expired' && "(Expired)"}
 								</h2>
 							</div>
 							<div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
 								<div className="bg-gray-100 p-4 rounded-lg shadow-sm flex items-center gap-4">
-									<FaCreditCard className="text-green-500 mr-2" />
+									<FaCreditCard className={`mr-2 ${formateDate(userData?.planExpiry)?.currentStatus === 'Expired' ? 'text-gray-600' : 'text-green-500'}`} />
 									<div>
 										<span className="text-gray-600 font-medium">Plan Name:</span>
 										<span className="text-gray-800 block mt-1">{userData?.plan?.name}</span>
 									</div>
 								</div>
 								<div className="bg-gray-100 p-4 rounded-lg shadow-sm flex items-center gap-4">
-									<DollarSign className="text-green-500 mr-2" />
+									<DollarSign className={`mr-2 ${formateDate(userData?.planExpiry)?.currentStatus === 'Expired' ? 'text-gray-600' : 'text-green-500'}`} />
 									<div>
 										<span className="text-gray-600 font-medium">Plan Price:</span>
 										<span className="text-gray-800 block mt-1">BD {userData?.plan?.price}</span>
 									</div>
 								</div>
 								<div className="bg-gray-100 p-4 rounded-lg shadow-sm flex items-center gap-4">
-									<BsHourglassSplit className="text-green-500 mr-2" />
+									<BsHourglassSplit className={`mr-2 ${formateDate(userData?.planExpiry)?.currentStatus === 'Expired' ? 'text-gray-600' : 'text-green-500'}`} />
 									<div>
 										<span className="text-gray-600 font-medium">Plan Duration:</span>
 										<span className="text-gray-800 block mt-1">{userData?.plan?.duration} {userData.plan.duration === '1' ? 'Month' : 'Months'}</span>
 									</div>
 								</div>
 								<div className="bg-gray-100 p-4 rounded-lg shadow-sm flex items-center gap-4">
-									<FaCalendarAlt className="text-green-500 mr-2" />
+									<FaCalendarAlt className={`mr-2 ${formateDate(userData?.planExpiry)?.currentStatus === 'Expired' ? 'text-gray-600' : 'text-green-500'}`} />
 									<div>
 										<span className="text-gray-600 font-medium">Plan Expiry:</span>
 										<span className="text-gray-800 block mt-1">
 											{moment(userData?.planExpiry).format('DD MMM YYYY')}
+											{/* {formateDate(userData?.planExpiry)} */}
 										</span>
 									</div>
 								</div>
@@ -205,34 +163,6 @@ const AssignPlan = () => {
 					)}
 				</div>
 
-				{/* // Assign Plan Section */}
-				<div className="bg-white shadow-md rounded-lg overflow-hidden">
-					<div className="p-8 bg-gradient-to-r from-red-500 to-red-400">
-						<h2 className="text-2xl font-bold text-white mb-4 flex items-center">
-							<FaCreditCard className="mr-2" /> Assign Plan
-						</h2>
-					</div>
-					<div className="p-8 flex flex-col space-y-4 ">
-						<div className="w-full">
-							<label className="block text-sm font-medium text-gray-700">Select a Plan</label>
-							<select
-								className="w-full mt-3 mb-4 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-								value={selectedPlan}
-								onChange={(e) => setSelectedPlan(e.target.value)}
-							>
-								<option value="">Choose a Plan</option>
-								{planList?.map((plan) => (
-									<option key={plan._id} value={plan._id}>
-										{plan?.name} - {plan?.price} BD ({plan?.duration} Month{plan?.duration === '1' ? "" : "s"})
-									</option>
-								))}
-							</select>
-						</div>
-						<button onClick={handleAssignPlan} className={`${isLoading ? 'bg-yellow-300' : successAssign ? 'bg-emerald-400' : error ? 'bg-red-400 hover:bg-yellow-500' : 'bg-yellow-400 hover:bg-yellow-500'}  text-gray-800 px-6 py-3 rounded-md font-semibold transition duration-300 shadow-lg`} disabled={isLoading}>
-							{isLoading ? 'Assigning...' : error ? 'Assign failed! Try Again' : successAssign ? 'Assigned successfully' : 'Assign Plan'}
-						</button>
-					</div>
-				</div>
 			</div >
 		</>
 	);

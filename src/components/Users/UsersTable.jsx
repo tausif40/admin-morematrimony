@@ -36,7 +36,7 @@ const UsersTable = () => {
   }, [ dispatch ]);
 
   useEffect(() => {
-    console.log(usersList?.data);
+    // console.log("user list-", usersList?.data);
     setUsers(usersList?.data?.users);
   }, [ usersList ]);
 
@@ -44,7 +44,7 @@ const UsersTable = () => {
   useEffect(() => {
     if (usersList?.data && (filterList.limit !== usersList.data.limit || filterList.page !== usersList.data.page || filterList.totalUsers !== usersList.data.totalUsers)
     ) {
-      console.log(filterData);
+      // console.log(filterData);
       setFilterList((prevFilter) => ({
         ...prevFilter,
         limit: filterData?.limit,

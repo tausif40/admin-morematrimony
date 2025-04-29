@@ -33,7 +33,9 @@ export const getActivePlan = createAsyncThunk('plan/getActivePlan', async (_, { 
 });
 export const getUserActivePlan = createAsyncThunk('user/getUserActivePlan', async (id, { rejectWithValue }) => {
 	try {
+		console.log(`/admin/agent/${id}`)
 		const response = await apiClient.get(`/admin/agent/${id}`);
+		console.log(response);
 		return response.data;
 	} catch (error) {
 		console.log(error);

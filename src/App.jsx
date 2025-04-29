@@ -10,8 +10,9 @@ import { getActivePlan, getPlans } from './store/features/plans-slice';
 import Login from './components/Login/Login';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import AssignPlan from './components/Users/AssignPlan';
-import TransactionData from './components/TransactionData/TransactionData';
-import TransactionDetails from './components/TransactionData/TransactionDetails';
+import PaymentDetails from './components/Payment/PaymentDetails';
+import PaymentList from './components/Payment/PaymentList';
+
 
 function App() {
   const dispatch = useDispatch();
@@ -34,8 +35,8 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/users" element={<UsersTable />} />
             <Route path="/plans" element={<PlansManager />} />
-            <Route path="/transactions" element={<TransactionData />} />
-            <Route path="/transactions/assign-plan" element={<TransactionDetails />} />
+            <Route path="/Payment" element={<PaymentList />} />
+            <Route path="/Payment/assign-plan" element={<PaymentDetails />} />
             <Route path="/users/assign-plan" element={<AssignPlan />} />
           </Route>
         </Route>
