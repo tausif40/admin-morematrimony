@@ -42,3 +42,8 @@
 .input:focus {
 	border: 1px solid #f21a2d;
 }
+
+.button{
+	padding: 4px 14px;
+	border-radius: 6px;
+}

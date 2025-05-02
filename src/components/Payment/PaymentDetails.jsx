@@ -17,6 +17,7 @@ import { getUserActivePlan } from '../../store/features/plans-slice';
 import toast from 'react-hot-toast';
 import { assignPlan } from '../../store/features/user-slice';
 import { formateDate } from '../../utils/utils';
+import Modal from '../Modal/Modal'
 
 const PaymentDetails = () => {
 	const location = useLocation();
@@ -30,14 +31,17 @@ const PaymentDetails = () => {
 	const [ isLoading, setIsLoading ] = useState(false);
 	const [ successAssign, setSuccessAssign ] = useState(false);
 	const [ error, setError ] = useState(false);
+	const [ showModal, setShowModal ] = useState(false);
 	const [ selectedPlan, setSelectedPlan ] = useState(location?.state?.planId?._id);
 	const { currentStatus } = formateDate(userData?.planExpiry);
+	const [ isImage, setIsImage ] = useState(false);
 
 	useEffect(() => {
 		setUserData(location?.state?.agentId);
 		setPlan(location?.state?.planId);
+		const test = fileCheck()
+		console.log("fileCheck - ", test);
 	}, [ location ])
-	// console.log(location?.state?.agentId?._id);
 
 
 	useEffect(() => {
@@ -55,21 +59,40 @@ const PaymentDetails = () => {
 		setPlanList(activePlanList?.data?.plans)
 	}, [ activePlanList, userActivePlan ])
 
-	const handleAssignPlan = async () => {
+	const fileCheck = (url) => {
+		const imageExtensions = [ 'jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp' ];
+		const extension = url?.split('.').pop()?.toLowerCase();
+		return imageExtensions.includes(extension ?? '');
+	};
+
+	// useEffect(() => {
+	// 	if (isImageFile(transactionImage)) {
+	// 	}
+	// }, [ location?.state?.transactionImage ])
+
+	const handlePlanConformation = () => {
 		if (selectedPlan === '') {
 			toast.error('Please Select PLan');
 			return;
+		} else {
+			setShowModal(true)
 		}
+	}
+
+	const handleAssignPlan = async () => {
+		setShowModal(false)
 		const loadingToast = toast.loading('Assigning...');
 		try {
 			setIsLoading(true)
 			const data = { userId: userId, planId: selectedPlan }
-			console.log("Assigning plan:", data);
+			// console.log("Assigning plan:", data);
 			const res = await dispatch(assignPlan(data)).unwrap();
 			console.log(res);
+			// if (res?.data) {
 			setIsLoading(false)
 			setSuccessAssign(true)
 			setError(false)
+			// }
 			dispatch(getUserActivePlan(userId))
 			toast.success('Assigned successfully', { id: loadingToast });
 		} catch (err) {
@@ -86,6 +109,22 @@ const PaymentDetails = () => {
 
 	return (
 		<>
+			{showModal && <Modal show={showModal} onClose={() => { setShowModal(false); onClose(); }}>
+				<p className='font-semibold text-xl'>Are you sure?</p>
+				<div className='border mt-4 px-2 py-2 rounded-md shadow bg-slate-100'>
+					<ul className="grid grid-cols-2 gap-2 text-gray-700">
+						<li>{plan?.name}</li>
+						<li>{plan?.price} BD</li>
+						<li>{plan?.duration} months</li>
+						<li>{plan?.profileLimit} Mobile Number</li>
+					</ul>
+				</div>
+				<div className='flex justify-end gap-5 mt-8'>
+					<button className='button bg-gray-300' onClick={() => setShowModal(false)}>Cancel</button>
+					<button className='button bg-emerald-400' onClick={handleAssignPlan}>Yes</button>
+				</div>
+			</Modal>
+			}
 			<div className="w-12 bg-white rounded-full border-2 flex justify-center cursor-pointer mb-2 lg:mb-0" onClick={handelBack}><IoIosArrowRoundBack size={32} /></div>
 			<div className="max-w-5xl mx-auto p-8 font-sans bg-gradient-to-tr min-h-screen">
 				{/* <h1 className="text-4xl font-extrabold text-center text-purple-800 mb-10 drop-shadow-sm">💳 Transaction Details</h1> */}
@@ -166,12 +205,22 @@ const PaymentDetails = () => {
 						<h2 className="text-2xl font-semibold text-purple-700 mb-4 flex items-center gap-2">
 							<span className="text-3xl">🧾</span> Upload Image
 						</h2>
-
-						<PhotoProvider maskOpacity={0.6}>
-							<PhotoView src={location?.state?.transactionImage}>
-								<img src={location?.state?.transactionImage} alt="transition image" className='rounded-lg border border-gray-300 w-full h-52 object-cover' />
-							</PhotoView>
-						</PhotoProvider>
+						{isImage ?
+							<PhotoProvider maskOpacity={0.6}>
+								<PhotoView src={location?.state?.transactionImage}>
+									<img src={location?.state?.transactionImage} alt="transition image" className='rounded-lg border border-gray-300 w-full h-52 object-cover' />
+								</PhotoView>
+							</PhotoProvider>
+							: <div className='w-full min-h-52 bg-gray-200 flex items-center justify-center rounded-lg'>
+								<a
+									href={location?.state?.transactionImage}
+									download
+									className="px-6 py-2 border bg-emerald-200 hover:bg-emerald-300 border-green-500 rounded-full text-lg font-semibold transition"
+								>
+									Download
+								</a>
+							</div>
+						}
 						{/* <img
 						src={location?.state?.transactionImage}
 						alt="Transaction"
@@ -257,7 +306,7 @@ const PaymentDetails = () => {
 								))}
 							</select>
 						</div>
-						<button onClick={handleAssignPlan} className={`${isLoading ? 'bg-yellow-300' : successAssign ? 'bg-emerald-400' : error ? 'bg-red-400 hover:bg-yellow-500' : 'bg-yellow-400 hover:bg-yellow-500'}  text-gray-800 px-6 py-3 rounded-md font-semibold transition duration-300 shadow-lg`} disabled={isLoading}>
+						<button onClick={handlePlanConformation} className={`${isLoading ? 'bg-yellow-300' : successAssign ? 'bg-emerald-400' : error ? 'bg-red-400 hover:bg-yellow-500' : 'bg-yellow-400 hover:bg-yellow-500'}  text-gray-800 px-6 py-3 rounded-md font-semibold transition duration-300 shadow-lg`} disabled={isLoading}>
 							{isLoading ? 'Assigning...' : error ? 'Assign failed! Try Again' : successAssign ? 'Assigned successfully' : 'Assign Plan'}
 						</button>
 					</div>
