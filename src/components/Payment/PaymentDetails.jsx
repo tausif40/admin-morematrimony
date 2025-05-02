@@ -48,7 +48,7 @@ const PaymentDetails = () => {
 	const activePlanList = useSelector((state) => state.planSlice.activePlan);
 	const userActivePlan = useSelector((state) => state.planSlice.userActivePlan);
 
-	// console.log(userActivePlan);
+	console.log(userActivePlan);
 
 	useEffect(() => {
 		setActivePlan(userActivePlan?.data?.agent?.plan)

@@ -21,17 +21,19 @@ function PaymentList() {
 		page: '',
 		limit: '',
 		totalResults: '',
-		...(activeTab !== '' && { statusByAdmin: filterData?.statusByAdmin })
+		statusByAdmin: filterData?.statusByAdmin
+		// ...(activeTab !== '' && { statusByAdmin: filterData?.statusByAdmin })
 	});
 
 	console.log("filter Data-", filterData);
-	console.log('filterList-', filterList);
+	// 
 
 	useEffect(() => {
 		dispatch(setFilter(filterList));
 	}, [ filterList, dispatch ]);
 
 	useEffect(() => {
+		console.log('filterList-', filterList);
 		// const data = { populate: 'agentId,planId' }
 		dispatch(getTransaction(filterList));
 	}, [ dispatch ])
@@ -45,13 +47,14 @@ function PaymentList() {
 		setFilterList((prevFilter) => ({
 			...prevFilter,
 			limit: filterData?.limit || user?.limit,
-			page: filterData?.page || user?.totalPages,
+			page: filterData?.page || user?.page,
 			totalResults: filterData?.totalResults || user?.totalResults,
 			statusByAdmin: filterData?.statusByAdmin,
 		}));
 	}, [ transactionData ]);
 
 	useEffect(() => {
+		console.log('filterList-', filterList);
 		if (JSON.stringify(prevFilterListRef.current) !== JSON.stringify(filterList)) {
 			dispatch(getTransaction(filterList));
 			prevFilterListRef.current = filterList;
@@ -60,7 +63,7 @@ function PaymentList() {
 
 	useEffect(() => {
 		setAllTransaction(transactionData?.data?.transaction?.results)
-		console.log(transactionData?.data?.transaction);
+		// console.log(transactionData?.data?.transaction);
 	}, [ transactionData ])
 
 	const handelUser = (data) => {
@@ -98,7 +101,7 @@ function PaymentList() {
 					</div>
 				</div>
 
-				<div className="bg-white rounded-2xl shadow overflow-hidden">
+				<div className="bg-white rounded-2xl shadow overflow-x-auto">
 					<table className="min-w-full table-auto text-left">
 						<thead className="bg-purple-100 text-purple-800">
 							<tr>

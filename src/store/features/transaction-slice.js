@@ -19,13 +19,13 @@ const transaction = createSlice({
 	name: 'transaction',
 	initialState: {
 		transaction: { data: [], loading: false, error: null, },
-		filter: { page: 1, limit: '', totalUsers: '', statusByAdmin: '' }
+		filter: { page: 1, limit: '', totalResults: '', statusByAdmin: 'pending' }
 	},
 	reducers: {
 		setFilter(state, action) {
 			state.filter.limit = action.payload.limit;
 			state.filter.page = action.payload.page;
-			state.filter.totalUsers = action.payload.totalUsers;
+			state.filter.totalResults = action.payload.totalResults;
 			state.filter.statusByAdmin = action.payload.statusByAdmin;
 			// console.log("filter update")
 		}
